@@ -78,6 +78,9 @@ the HTML documentation.
 
    On Windows, use the batch file make.bat instead.
 
+   Note that this currently takes a very long time; the culprit seems
+   to be Breathe, which isn't written for speed.
+
 Reading and Modifying the Documentation
 ---------------------------------------
 

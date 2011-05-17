@@ -1,8 +1,8 @@
 .. _adc:
 
-=====
- ADC
-=====
+
+ADC
+===
 
 Analog-Digital Conversion is the process of reading a physical voltage
 as a number. The Maple has a large number of pins which are capable of
@@ -20,7 +20,7 @@ number of techniques must be used to get good precision and accuracy.
 Noise and Bias
 --------------
 
-.. FIXME [0.0.10, Maple-specific]
+.. FIXME [0.0.11, Maple-specific]
 
 The biggest issues with analog-digital conversion are noise and bias.
 With the Maple, we have tried to isolate the ADC pins and traces from
@@ -59,6 +59,7 @@ Function Reference
 
 * :ref:`lang-analogread`
 * :ref:`lang-pinmode`
+* :ref:`libmaple-adc`
 
 .. _adc-recommended-reading:
 
