@@ -270,4 +270,14 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 breathe_projects = {'libmaple' : os.path.join(os.environ['LIB_MAPLE_HOME'],
                                               'docs', 'doxygen', 'xml')}
 
+breathe_domain_by_extension = {'cpp': 'cpp'}
+
+breathe_domain_by_file_pattern = {
+    '*/libmaple/*.h': 'c',
+    '*/libmaple/*.c': 'c',
+    '*/wirish/*.h':, 'cpp',
+    '*/wirish/boards/*.h':, 'cpp',
+    '*/wirish/comm/*.h':, 'cpp'
+    }
+
 breathe_default_project = 'libmaple'
