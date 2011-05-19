@@ -23,10 +23,11 @@
  *****************************************************************************/
 
 /*
- * See ../notes/fsmc.txt for more info
+ * See /notes/fsmc.txt for more info
  */
 
 #include "libmaple_types.h"
+#include "rcc.h"
 
 /**
  * @file fsmc.h
@@ -85,10 +86,21 @@ typedef struct fsmc_reg_map {
     __io uint32 BWTR4; /**< SRAM/NOR-Flash write timing register 4 */
 } __attribute__((packed)) fsmc_reg_map;
 
+/** FSMC device type. */
+typedef struct fsmc_dev {
+    fsmc_reg_map *regs;         /**< Register map. */
+    void *banks[4];             /**< Pointers to memory bank bases,
+                                     ordered from bank 1 to 4. */
+    rcc_clk_id clk_id;          /**< RCC clock information. */
+} fsmc_dev;
+
 #define __FSMCB                         0xA0000000
 
 /** FSMC register map base pointer */
 #define FSMC_BASE                       ((struct fsmc_reg_map*)__FSMCB)
+
+/** FSMC device */
+extern const fsmc_dev *FSMC;
 
 /** FSMC NOR/PSRAM register map type */
 typedef struct fsmc_nor_psram_reg_map {
@@ -274,11 +286,12 @@ typedef struct fsmc_nor_psram_reg_map {
  * SRAM/NOR Flash routines
  */
 
-void fsmc_sram_init_gpios(void);
+void fsmc_init(const fsmc_dev *dev);
+void fsmc_sram_init_gpios(const fsmc_dev *dev);
 
 /**
- * Set the DATAST bits in the given NOR/PSRAM register map's
- * chip-select timing register (FSMC_BTR).
+ * @brief Set the DATAST bits in the given NOR/PSRAM register map's
+ *        chip-select timing register (FSMC_BTR).
  *
  * @param regs   NOR Flash/PSRAM register map whose chip-select timing
  *               register to set.

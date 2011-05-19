@@ -31,10 +31,41 @@
 
 #ifdef STM32_HIGH_DENSITY
 
-/**
- * Configure FSMC GPIOs for use with SRAM.
+/*
+ * Device
  */
-void fsmc_sram_init_gpios(void) {
+
+fsmc_dev fsmc = {
+    .regs   = FSMC_BASE,
+    .banks  = { FSMC_BANK1, FSMC_BANK2, FSMC_BANK3, FSMC_BANK4 },
+    .clk_id = RCC_FSMC
+};
+const fsmc_dev *FSMC = &fsmc;
+
+/*
+ * Convenience functions
+ */
+
+/**
+ * @brief Initialize an FSMC device.
+ *
+ * Initializes dev's RCC clock line.
+ *
+ * @param dev Device to initialize.
+ */
+void fsmc_init(const fsmc_dev *dev) {
+    rcc_clk_enable(dev->clk_id);
+}
+
+/**
+ * @brief Configure FSMC GPIOs for use with SRAM.
+ * @param dev FSMC device.
+ */
+void fsmc_sram_init_gpios(const fsmc_dev *dev) {
+    /* Argument ignored.  We take it mostly for consistency with the
+     * rest of the library, although I suppose some wild future might
+     */
+
     /* Data lines... */
     gpio_set_mode(GPIOD,  0, GPIO_AF_OUTPUT_PP);
     gpio_set_mode(GPIOD,  1, GPIO_AF_OUTPUT_PP);

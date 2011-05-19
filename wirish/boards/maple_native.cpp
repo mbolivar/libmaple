@@ -186,11 +186,10 @@ extern const uint8 boardUsedPins[BOARD_NR_USED_PINS] __FLASH__ = {
 };
 
 void initSRAMChip(void) {
+    fsmc_sram_init_gpios(FSMC);
+    fsmc_init(FSMC);
+
     fsmc_nor_psram_reg_map *regs = FSMC_NOR_PSRAM1_BASE;
-
-    fsmc_sram_init_gpios();
-    rcc_clk_enable(RCC_FSMC);
-
     regs->BCR = FSMC_BCR_WREN | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
     fsmc_nor_psram_set_addset(regs, 0);
     fsmc_nor_psram_set_datast(regs, 3);
