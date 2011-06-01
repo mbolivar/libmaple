@@ -3,6 +3,7 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 BUILDDIRS += $(BUILD_PATH)/$(d)
+BUILDDIRS += $(BUILD_PATH)/$(d)/utility
 
 # Local flags
 CXXFLAGS_$(d) := $(WIRISH_INCLUDES) $(LIBMAPLE_INCLUDES)
