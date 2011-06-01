@@ -7,6 +7,7 @@ BUILDDIRS += $(BUILD_PATH)/$(d)/utility
 
 # Local flags
 CXXFLAGS_$(d) := $(WIRISH_INCLUDES) $(LIBMAPLE_INCLUDES)
+CFLAGS_$(d) := $(WIRISH_INCLUDES) $(LIBMAPLE_INCLUDES)
 
 # Local rules and targets
 cSRCS_$(d) :=  utility/croutine.c        \
@@ -26,6 +27,7 @@ OBJS_$(d) := $(cFILES_$(d):%.c=$(BUILD_PATH)/%.o) \
 DEPS_$(d) := $(OBJS_$(d):%.o=%.d)
 
 $(OBJS_$(d)): TGT_CXXFLAGS := $(CXXFLAGS_$(d))
+$(OBJS_$(d)): TGT_CFLAGS := $(CFLAGS_$(d))
 
 TGT_BIN += $(OBJS_$(d))
 
