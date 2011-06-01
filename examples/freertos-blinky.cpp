@@ -1,5 +1,5 @@
 #include "wirish.h"
-#include "libraries/MapleFreeRTOS.h"
+#include "libraries/FreeRTOS/MapleFreeRTOS.h"
 
 static void vLEDFlashTask( void *pvParameters ) {
     for(;;) {
