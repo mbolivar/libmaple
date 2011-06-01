@@ -174,7 +174,7 @@ portBASE_TYPE xPortStartScheduler( void )
 	*(portNVIC_SYSPRI2) |= portNVIC_SYSTICK_PRI;
 
 // !!! Maple
-	systick_set_callback(&xPortSysTickHandler);
+	systick_attach_callback(&xPortSysTickHandler);
 //	/* Start the timer that generates the tick ISR.  Interrupts are disabled
 //	here already. */
 //	prvSetupTimerInterrupt();
