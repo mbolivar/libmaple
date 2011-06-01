@@ -132,7 +132,7 @@ portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE
 /*-----------------------------------------------------------*/
 // !!! Maple
 // void vPortSVCHandler( void )
-void SVCHandler( void )
+void __exc_svc( void )
 // !!! Maple
 {
 	__asm volatile (
@@ -223,7 +223,7 @@ void vPortExitCritical( void )
 /*-----------------------------------------------------------*/
 // !!! Maple
 // void xPortPendSVHandler( void )
-void PendSVC( void )
+void __exc_pendsv( void )
 // !!! Maple
 {
 	/* This is a naked function. */
