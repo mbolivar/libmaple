@@ -1,7 +1,7 @@
 #include "wirish.h"
 #include "libraries/FreeRTOS/MapleFreeRTOS.h"
 
-static void vLEDFlashTask( void *pvParameters ) {
+static void vLEDFlashTask(void *pvParameters) {
     for(;;) {
         vTaskDelay(2000);
         digitalWrite(BOARD_LED_PIN, HIGH);
