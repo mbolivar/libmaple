@@ -15,6 +15,7 @@ cSRCS_$(d) :=  utility/croutine.c        \
                utility/list.c            \
                utility/port.c            \
                utility/queue.c           \
+               utility/timers.c          \
                utility/tasks.c           \
 
 cppSRCS_$(d) := MapleFreeRTOS.cpp
