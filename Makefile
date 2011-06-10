@@ -93,6 +93,7 @@ LIBMAPLE_MODULES += $(SRCROOT)/wirish
 LIBMAPLE_MODULES += $(SRCROOT)/libraries/Servo
 LIBMAPLE_MODULES += $(SRCROOT)/libraries/LiquidCrystal
 LIBMAPLE_MODULES += $(SRCROOT)/libraries/Wire
+LIBMAPLE_MODULES += $(SRCROOT)/libraries/Gameduino
 
 # call each module rules.mk
 $(foreach m,$(LIBMAPLE_MODULES),$(eval $(call LIBMAPLE_MODULE_template,$(m))))
