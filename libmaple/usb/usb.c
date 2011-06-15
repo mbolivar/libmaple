@@ -219,27 +219,6 @@ RESULT usbPowerOff(void) {
   return USB_SUCCESS;
 }
 
-
-// These two functions (usbEnbISR/usbDsbISR) are implementented in ST style,
-// and at least the DsbISR doesn't seem to work?
-void usbEnbISR(void) {
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = USB_LP_IRQ;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = TRUE;
-  nvicInit(&NVIC_InitStructure);
-}
-
-void usbDsbISR(void) {
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = USB_LP_IRQ;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = FALSE;
-  nvicInit(&NVIC_InitStructure);
-}
-
 /* overloaded ISR routine, this is the main usb ISR */
 void __irq_usb_lp_can_rx0(void) {
 wIstr = _GetISTR();
