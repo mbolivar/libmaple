@@ -36,11 +36,7 @@
 
 #define USB_PACKET_BUFFER ((u32)0x40006000)
 
-#define SCS_BASE_ADDR   ((u32)0xE000E000)
-#define SCB_BASE_ADDR   (SCS_BASE_ADDR + 0x0D00)
-
 #define SCS      0xE000E000
-#define NVIC     (SCS+0x100)
 #define SCB      (SCS+0xD00)
 #define STK      (SCS+0x10)
 
@@ -84,35 +80,7 @@ typedef struct
 } RCC_RegStruct;
 #define pRCC ((RCC_RegStruct *) RCC_BASE)
 
-typedef struct {
-  u8 NVIC_IRQChannel;
-  u8 NVIC_IRQChannelPreemptionPriority;
-  u8 NVIC_IRQChannelSubPriority;
-  USB_Bool NVIC_IRQChannelCmd; /* TRUE for enable */
-} NVIC_InitTypeDef;
-
-typedef struct {
-  vuc32 CPUID;
-  vu32 ICSR;
-  vu32 VTOR;
-  vu32 AIRCR;
-  vu32 SCR;
-  vu32 CCR;
-  vu32 SHPR[3];
-  vu32 SHCSR;
-  vu32 CFSR;
-  vu32 HFSR;
-  vu32 DFSR;
-  vu32 MMFAR;
-  vu32 BFAR;
-  vu32 AFSR;
-} SCB_TypeDef;
-
-
 void systemHardReset(void);
-
-void nvicInit        (NVIC_InitTypeDef*);
-void nvicDisableInterrupts(void);
 
 #if defined(__cplusplus)
 }
