@@ -84,8 +84,6 @@ uint8 usbIsConnected(void);
 uint8 usbIsConfigured(void);
 uint16 usbGetPending(void);
 
-void usbSendHello(void);
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -396,21 +396,6 @@ uint32 usbReceiveBytes(uint8* recvBuf, uint32 len) {
   return len;
 }
 
-void usbSendHello(void) {
-  uint8 bufin = 48 + recvBufIn;;
-  uint8 bufout = 48 + recvBufOut;
-  uint8 avail  = 48 + usbBytesAvailable();
-
-  char *line = "\r\n";
-  while(usbSendBytes(&bufin,1) == 0);
-  while(usbSendBytes(&bufout,1) == 0);
-  while(usbSendBytes(&avail,1) == 0);
-  while(usbSendBytes((uint8*)line,2) == 0);
-
-  uint8 recv[64];
-  usbReceiveBytes(&recv[0],1);
-}
-
 uint8 usbGetDTR() {
   return ((line_dtr_rts & CONTROL_LINE_DTR) != 0);
 }
