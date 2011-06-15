@@ -90,27 +90,8 @@ void loop () {
             SerialUSB.println("spacebar, nice!");
             break;
 
-        case '?':
-        case 'h':
-            cmd_print_help();
-            break;
-
-        case 'u':
-            SerialUSB.println("Hello World!");
-            break;
-
-        case 'w':
-            Serial1.println("Hello World!");
-            Serial2.println("Hello World!");
-            Serial3.println("Hello World!");
-            break;
-
-        case 'm':
-            cmd_serial1_serial3();
-            break;
-
-        case 'E':
-            cmd_serial1_echo();
+        case '+':
+            cmd_gpio_qa();
             break;
 
         case '.':
@@ -122,65 +103,9 @@ void loop () {
             }
             break;
 
-        case 'n':
-            cmd_adc_stats();
-            break;
-
-        case 'N':
-            cmd_stressful_adc_stats();
-            break;
-
-        case 'e':
-            cmd_everything();
-            break;
-
-        case 'W':
-            while (!SerialUSB.available()) {
-                Serial1.print(dummy_data);
-                Serial2.print(dummy_data);
-                Serial3.print(dummy_data);
-            }
-            break;
-
-        case 'U':
-            SerialUSB.println("Dumping data to USB. Press any key.");
-            while (!SerialUSB.available()) {
-                SerialUSB.print(dummy_data);
-            }
-            break;
-
-        case 'g':
-            cmd_sequential_gpio_toggling();
-            break;
-
-        case 'G':
-            cmd_gpio_toggling();
-            break;
-
-        case 'j':
-            cmd_sequential_debug_gpio_toggling();
-            break;
-
-        case 'J':
-            cmd_debug_gpio_toggling();
-            break;
-
-        case 'B':
-            cmd_but_test();
-            break;
-
-        case 'f':
-            SerialUSB.println("Wiggling D4 as fast as possible in bursts. "
-                         "Press any key.");
-            pinMode(4, OUTPUT);
-            while (!SerialUSB.available()) {
-                fast_gpio(4);
-                delay(1);
-            }
-            break;
-
-        case 'p':
-            cmd_sequential_pwm_test();
+        case '?':
+        case 'h':
+            cmd_print_help();
             break;
 
         case '_':
@@ -188,18 +113,16 @@ void loop () {
             delay(5000);
             break;
 
-        // Be sure to update cmd_print_help() if you implement these:
-
-        case 't':               // TODO
-            SerialUSB.println("Unimplemented.");
+        case 'a':
+            cmd_sequential_adc_reads();
             break;
 
-        case 'T':               // TODO
-            SerialUSB.println("Unimplemented.");
+        case 'B':
+            cmd_but_test();
             break;
 
-        case 's':
-            cmd_servo_sweep();
+        case 'b':
+            cmd_board_info();
             break;
 
         case 'd':
@@ -219,33 +142,110 @@ void loop () {
             pinMode(4, OUTPUT);
             break;
 
-        // Be sure to update cmd_print_help() if you implement these:
-
-        case 'i':               // TODO
-            SerialUSB.println("Unimplemented.");
+        case 'E':
+            cmd_serial1_echo();
             break;
 
-        case 'I':               // TODO
-            SerialUSB.println("Unimplemented.");
+        case 'f':
+            SerialUSB.println("Wiggling D4 as fast as possible in bursts. "
+                         "Press any key.");
+            pinMode(4, OUTPUT);
+            while (!SerialUSB.available()) {
+                fast_gpio(4);
+                delay(1);
+            }
+            break;
+
+        case 'G':
+            cmd_gpio_toggling();
+            break;
+
+        case 'g':
+            cmd_sequential_gpio_toggling();
+            break;
+
+        case 'J':
+            cmd_debug_gpio_toggling();
+            break;
+
+        case 'j':
+            cmd_sequential_debug_gpio_toggling();
+            break;
+
+        case 'm':
+            cmd_serial1_serial3();
+            break;
+
+        case 'N':
+            cmd_stressful_adc_stats();
+            break;
+
+        case 'n':
+            cmd_adc_stats();
+            break;
+
+        case 'p':
+            cmd_sequential_pwm_test();
             break;
 
         case 'r':
             cmd_gpio_monitoring();
             break;
 
-        case 'a':
-            cmd_sequential_adc_reads();
+        case 's':
+            cmd_servo_sweep();
             break;
 
-        case 'b':
-            cmd_board_info();
+        case 'U':
+            SerialUSB.println("Dumping data to USB. Press any key.");
+            while (!SerialUSB.available()) {
+                SerialUSB.print(dummy_data);
+            }
             break;
 
-        case '+':
-            cmd_gpio_qa();
+        case 'u':
+            SerialUSB.println("Hello World!");
             break;
 
-        default: // -------------------------------
+        case 'W':
+            while (!SerialUSB.available()) {
+                Serial1.print(dummy_data);
+                Serial2.print(dummy_data);
+                Serial3.print(dummy_data);
+            }
+            break;
+
+        case 'w':
+            Serial1.println("Hello World!");
+            Serial2.println("Hello World!");
+            Serial3.println("Hello World!");
+            break;
+
+        // --------------------------------------------------------------------
+        // TODO: implement these. Be sure to update cmd_print_help().
+
+        case 'e':
+            cmd_everything();
+            break;
+
+        case 'T':
+            SerialUSB.println("Unimplemented.");
+            break;
+
+        case 't':
+            SerialUSB.println("Unimplemented.");
+            break;
+
+        case 'I':
+            SerialUSB.println("Unimplemented.");
+            break;
+
+        case 'i':
+            SerialUSB.println("Unimplemented.");
+            break;
+        // --------------------------------------------------------------------
+
+        default:
             SerialUSB.print("Unexpected byte: 0x");
             SerialUSB.print((int)input, HEX);
             SerialUSB.println(", press h for help.");
