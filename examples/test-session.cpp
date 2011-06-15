@@ -260,40 +260,40 @@ void loop () {
 void cmd_print_help(void) {
     SerialUSB.println("");
     SerialUSB.println("Command Listing");
-    SerialUSB.println("\t?: print this menu");
-    SerialUSB.println("\th: print this menu");
-    SerialUSB.println("\tw: print Hello World on all 3 USARTS");
-    SerialUSB.println("\tn: measure noise and do statistics");
-    SerialUSB.println("\tN: measure noise and do statistics with background "
-                      "stuff");
-    SerialUSB.println("\ta: show realtime ADC info");
+    SerialUSB.println("\t+: test shield mode (for quality assurance testing)");
     SerialUSB.println("\t.: echo '.' until new input");
-    SerialUSB.println("\tu: print Hello World on USB");
+    SerialUSB.println("\t?: print this menu");
     SerialUSB.println("\t_: do as little as possible for a couple seconds "
                       "(delay)");
-    SerialUSB.println("\tp: test all PWM channels sequentially");
-    SerialUSB.println("\tW: dump data as fast as possible on all 3 USARTS");
-    SerialUSB.println("\tU: dump data as fast as possible on USB");
-    SerialUSB.println("\tg: toggle GPIOs sequentially");
-    SerialUSB.println("\tG: toggle GPIOs at the same time");
-    SerialUSB.println("\tj: toggle debug port GPIOs sequentially");
-    SerialUSB.println("\tJ: toggle debug port GPIOs simultaneously");
+    SerialUSB.println("\ta: show realtime ADC info");
     SerialUSB.println("\tB: test the built-in button");
+    SerialUSB.println("\tb: print information about the board.");
+    SerialUSB.println("\tE: echo data on USART1 at various baud rates");
     SerialUSB.println("\tf: toggle pin 4 as fast as possible in bursts");
-    SerialUSB.println("\tr: monitor and print GPIO status changes");
-    SerialUSB.println("\ts: output a sweeping servo PWM on all PWM channels");
+    SerialUSB.println("\tG: toggle GPIOs at the same time");
+    SerialUSB.println("\tg: toggle GPIOs sequentially");
+    SerialUSB.println("\th: print this menu");
+    SerialUSB.println("\tJ: toggle debug port GPIOs simultaneously");
+    SerialUSB.println("\tj: toggle debug port GPIOs sequentially");
     SerialUSB.println("\tm: output data on USART1 and USART3 at various "
                       "baud rates");
-    SerialUSB.println("\tE: echo data on USART1 at various baud rates");
-    SerialUSB.println("\tb: print information about the board.");
-    SerialUSB.println("\t+: test shield mode (for quality assurance testing)");
+    SerialUSB.println("\tN: measure noise and do statistics with background "
+                      "stuff");
+    SerialUSB.println("\tn: measure noise and do statistics");
+    SerialUSB.println("\tp: test all PWM channels sequentially");
+    SerialUSB.println("\tr: monitor and print GPIO status changes");
+    SerialUSB.println("\ts: output a sweeping servo PWM on all PWM channels");
+    SerialUSB.println("\tU: dump data as fast as possible on USB");
+    SerialUSB.println("\tu: print Hello World on USB");
+    SerialUSB.println("\tW: dump data as fast as possible on all 3 USARTS");
+    SerialUSB.println("\tw: print Hello World on all 3 USARTS");
 
     SerialUSB.println("Unimplemented:");
     SerialUSB.println("\te: do everything all at once until new input");
-    SerialUSB.println("\tt: output a 1khz squarewave on all GPIOs");
     SerialUSB.println("\tT: output a 1hz squarewave on all GPIOs");
-    SerialUSB.println("\ti: print out a bunch of info about system state");
+    SerialUSB.println("\tt: output a 1khz squarewave on all GPIOs");
     SerialUSB.println("\tI: print out status of all headers");
+    SerialUSB.println("\ti: print out a bunch of info about system state");
 }
 
 void cmd_adc_stats(void) {
