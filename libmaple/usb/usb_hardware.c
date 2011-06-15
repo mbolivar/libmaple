@@ -40,8 +40,8 @@ void nvicInit(NVIC_InitTypeDef* NVIC_InitStruct) {
     u32 tmppre      = 0;
     u32 tmpsub      = 0x0F;
 
-    SCB_TypeDef* rSCB = (SCB_TypeDef *) SCB_BASE;
-    NVIC_TypeDef* rNVIC = (NVIC_TypeDef *) NVIC_BASE;
+    SCB_TypeDef* rSCB = (SCB_TypeDef *) SCB_BASE_ADDR;
+    NVIC_TypeDef* rNVIC = (NVIC_TypeDef *) NVIC_BASE_ADDR;
 
 
     /* Compute the Corresponding IRQ Priority -------------------------------*/
@@ -72,7 +72,7 @@ void nvicInit(NVIC_InitTypeDef* NVIC_InitStruct) {
 }
 
 void nvicDisableInterrupts() {
-    NVIC_TypeDef* rNVIC = (NVIC_TypeDef *) NVIC_BASE;
+    NVIC_TypeDef* rNVIC = (NVIC_TypeDef *) NVIC_BASE_ADDR;
     rNVIC->ICER[0] = 0xFFFFFFFF;
     rNVIC->ICER[1] = 0xFFFFFFFF;
     rNVIC->ICPR[0] = 0xFFFFFFFF;
@@ -83,7 +83,7 @@ void nvicDisableInterrupts() {
 }
 
 void systemHardReset(void) {
-    SCB_TypeDef* rSCB = (SCB_TypeDef *) SCB_BASE;
+    SCB_TypeDef* rSCB = (SCB_TypeDef *) SCB_BASE_ADDR;
     typedef void (*funcPtr)(void);
 
     /* Reset */

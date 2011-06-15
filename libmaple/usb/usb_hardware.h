@@ -36,9 +36,9 @@
 
 #define USB_PACKET_BUFFER ((u32)0x40006000)
 
-#define SCS_BASE   ((u32)0xE000E000)
-#define NVIC_BASE  (SCS_BASE + 0x0100)
-#define SCB_BASE   (SCS_BASE + 0x0D00)
+#define SCS_BASE_ADDR   ((u32)0xE000E000)
+#define NVIC_BASE_ADDR  (SCS_BASE_ADDR + 0x0100)
+#define SCB_BASE_ADDR   (SCS_BASE_ADDR + 0x0D00)
 
 #define SCS      0xE000E000
 #define NVIC     (SCS+0x100)
