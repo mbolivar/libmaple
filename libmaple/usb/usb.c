@@ -99,7 +99,7 @@ struct {
   volatile uint8 bESOFcnt;
 } ResumeS;
 
-void setupUSB (gpio_dev *disc_dev, uint8 disc_bit) {
+void usb_cdcacm_enable(gpio_dev *disc_dev, uint8 disc_bit) {
   gpio_set_mode(disc_dev, disc_bit, GPIO_OUTPUT_PP);
 
   /* setup the apb1 clock for USB */
@@ -110,7 +110,7 @@ void setupUSB (gpio_dev *disc_dev, uint8 disc_bit) {
   USB_Init();  // low level init routine provided by the ST library
 }
 
-void disableUSB (gpio_dev *disc_dev, uint8 disc_bit) {
+void usb_cdcacm_disable(gpio_dev *disc_dev, uint8 disc_bit) {
   // These are just guesses about how to do this
   // TODO: real disable function
   usbDsbISR();
