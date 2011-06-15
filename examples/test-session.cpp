@@ -126,20 +126,12 @@ void loop () {
             break;
 
         case 'd':
-            SerialUSB.println("Pulling down D4, D22. Press any key.");
-            pinMode(22, INPUT_PULLDOWN);
-            pinMode(4, INPUT_PULLDOWN);
-            while (!SerialUSB.available()) {
-                continue;
-            }
-            SerialUSB.println("Pulling up D4, D22. Press any key.");
-            pinMode(22, INPUT_PULLUP);
-            pinMode(4, INPUT_PULLUP);
-            while (!SerialUSB.available()) {
-                continue;
-            }
-            SerialUSB.read();
-            pinMode(4, OUTPUT);
+            SerialUSB.println("Disabling USB.  Press BUT to re-enable.");
+            SerialUSB.end();
+            pinMode(BOARD_BUTTON_PIN, INPUT);
+            while (!isButtonPressed())
+                ;
+            SerialUSB.begin();
             break;
 
         case 'E':
@@ -268,6 +260,7 @@ void cmd_print_help(void) {
     SerialUSB.println("\ta: show realtime ADC info");
     SerialUSB.println("\tB: test the built-in button");
     SerialUSB.println("\tb: print information about the board.");
+    SerialUSB.println("\td: Disable SerialUSB (press button to re-enable)");
     SerialUSB.println("\tE: echo data on USART1 at various baud rates");
     SerialUSB.println("\tf: toggle pin 4 as fast as possible in bursts");
     SerialUSB.println("\tG: toggle GPIOs at the same time");
