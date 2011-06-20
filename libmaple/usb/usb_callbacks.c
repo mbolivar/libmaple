@@ -7,7 +7,6 @@
 #include "descriptors.h"
 #include "usb_config.h"
 #include "usb.h"
-#include "usb_hardware.h"
 
 /* macro'd register and peripheral definitions */
 #define EXC_RETURN 0xFFFFFFF9
