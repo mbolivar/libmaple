@@ -80,8 +80,6 @@ typedef struct
 } RCC_RegStruct;
 #define pRCC ((RCC_RegStruct *) RCC_BASE)
 
-void systemHardReset(void);
-
 #if defined(__cplusplus)
 }
 #endif
