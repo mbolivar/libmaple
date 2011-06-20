@@ -301,7 +301,7 @@ if (wIstr & ISTR_CTR & wInterrupt_Mask) {
 
 void usbWaitReset(void) {
   delay_us(RESET_DELAY);
-  systemHardReset();
+  nvic_sys_reset();
 }
 
 /* This low-level send bytes function is NON-BLOCKING; blocking behavior, with
