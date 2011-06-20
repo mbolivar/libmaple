@@ -9,6 +9,10 @@
 #include "usb.h"
 #include "usb_hardware.h"
 
+/* macro'd register and peripheral definitions */
+#define EXC_RETURN 0xFFFFFFF9
+#define DEFAULT_CPSR 0x61000000
+
 ONE_DESCRIPTOR Device_Descriptor = {
     (uint8*)&usbVcomDescriptor_Device,
     sizeof(USB_Descriptor_Device)

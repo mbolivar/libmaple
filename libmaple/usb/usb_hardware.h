@@ -28,10 +28,6 @@
 #ifndef _USB_HARDWARE_H_
 #define _USB_HARDWARE_H_
 
-/* macro'd register and peripheral definitions */
-#define EXC_RETURN 0xFFFFFFF9
-#define DEFAULT_CPSR 0x61000000
-
 #if defined(__cplusplus)
 extern "C" {
 #endif
