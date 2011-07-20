@@ -27,13 +27,16 @@
 #ifndef _USB_H_
 #define _USB_H_
 
-#include "usb_lib.h"
 #include "libmaple.h"
 #include "gpio.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*
+ * Convenience routines, etc.
+ */
 
 typedef enum {
     RESUME_EXTERNAL,
@@ -62,9 +65,6 @@ void usb_cdcacm_disable(gpio_dev*, uint8);
 void usbSuspend(void);
 void usbResumeInit(void);
 void usbResume(RESUME_STATE);
-
-RESULT usbPowerOn(void);
-RESULT usbPowerOff(void);
 
 /* overloaded ISR routine, this is the main usb ISR */
 void __irq_usb_lp_can_rx0(void);
