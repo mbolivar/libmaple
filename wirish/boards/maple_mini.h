@@ -76,6 +76,6 @@
 #define BOARD_NJTRST_PIN          18
 
 #define BOARD_USB_DISC_DEV        GPIOB
-#define BOARD_USB_DISC_PIN        9
+#define BOARD_USB_DISC_BIT        9
 
 #endif
