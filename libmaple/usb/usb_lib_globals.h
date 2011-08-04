@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License
  *
- * Copyright (c) 2010 LeafLabs LLC.
+ * Copyright (c) 2011 LeafLabs LLC.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,60 +24,32 @@
  * SOFTWARE.
  *****************************************************************************/
 
-#ifndef _USB_H_
-#define _USB_H_
+#ifndef _USB_LIB_GLOBALS_H_
+#define _USB_LIB_GLOBALS_H_
 
-#include "libmaple.h"
-#include "gpio.h"
+#include "usb_type.h"
+#include "usb_core.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*
- * Convenience routines, etc.
- */
-
-typedef enum {
-    RESUME_EXTERNAL,
-    RESUME_INTERNAL,
-    RESUME_LATER,
-    RESUME_WAIT,
-    RESUME_START,
-    RESUME_ON,
-    RESUME_OFF,
-    RESUME_ESOF
-} RESUME_STATE;
-
-typedef enum {
-    UNCONNECTED,
-    ATTACHED,
-    POWERED,
-    SUSPENDED,
-    ADDRESSED,
-    CONFIGURED
-} DEVICE_STATE;
-
-extern volatile uint32 bDeviceState;
-
-struct _DEVICE_PROP;
-struct _USER_STANDARD_REQUESTS;
-void usb_init_usblib(struct _DEVICE_PROP*,
-                     struct _USER_STANDARD_REQUESTS*);
-
-void usbSuspend(void);
-void usbResumeInit(void);
-void usbResume(RESUME_STATE);
-
-/* overloaded ISR routine, this is the main usb ISR */
-void __irq_usb_lp_can_rx0(void);
-void usbWaitReset(void);
-
-uint8 usbIsConnected(void);
-uint8 usbIsConfigured(void);
+extern void (*pEpInt_IN[7])(void);
+extern void (*pEpInt_OUT[7])(void);
+extern DEVICE_PROP Device_Property;
+extern USER_STANDARD_REQUESTS User_Standard_Requests;
+extern DEVICE  Device_Table;
+extern DEVICE_INFO Device_Info;
+extern u16 SaveRState;
+extern u16 SaveTState;
+extern DEVICE_INFO* pInformation;
+extern DEVICE_PROP* pProperty;
+extern USER_STANDARD_REQUESTS *pUser_Standard_Requests;
+extern u16 SaveState ;
+extern u16 wInterrupt_Mask;
 
 #ifdef __cplusplus
-} // extern "C"
+}
 #endif
 
-#endif // _USB_H_
+#endif

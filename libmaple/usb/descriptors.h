@@ -25,7 +25,6 @@
 #ifndef __DESCRIPTORS_H
 #define __DESCRIPTORS_H
 
-
 #include "libmaple.h"
 
 #define USB_DESCRIPTOR_TYPE_DEVICE        0x01
@@ -33,9 +32,6 @@
 #define USB_DESCRIPTOR_TYPE_STRING        0x03
 #define USB_DESCRIPTOR_TYPE_INTERFACE     0x04
 #define USB_DESCRIPTOR_TYPE_ENDPOINT      0x05
-
-#define USB_DEVICE_CLASS_CDC              0x02
-#define USB_DEVICE_SUBCLASS_CDC           0x00
 
 #define USB_CONFIG_ATTR_BUSPOWERED        0b10000000
 #define USB_CONFIG_ATTR_SELF_POWERED      0b11000000
@@ -47,7 +43,6 @@
 #define USB_DESCRIPTOR_ENDPOINT_OUT       0x00
 
 #define USB_DESCRIPTOR_STRING_LEN(x) (2 + (x << 1))
-
 
 #if defined(__cplusplus)
 extern "C" {
@@ -204,18 +199,11 @@ typedef struct {
   
 }USB_Descriptor_Config;
  
-  typedef struct {
-    uint8          bLength;
-    uint8          bDescriptorType;
-    uint16         bString[];
-  } USB_Descriptor_String;
-
-extern const USB_Descriptor_Device usbVcomDescriptor_Device;
-extern const USB_Descriptor_Config usbVcomDescriptor_Config;
-
-extern const uint8 usbVcomDescriptor_LangID[USB_DESCRIPTOR_STRING_LEN(1)];
-extern const uint8 usbVcomDescriptor_iManufacturer[USB_DESCRIPTOR_STRING_LEN(8)];
-extern const uint8 usbVcomDescriptor_iProduct[USB_DESCRIPTOR_STRING_LEN(8)];
+typedef struct {
+  uint8          bLength;
+  uint8          bDescriptorType;
+  uint16         bString[];
+} USB_Descriptor_String;
 
 #if defined(__cplusplus)
   }

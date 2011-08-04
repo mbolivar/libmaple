@@ -1,7 +1,7 @@
 /******************************************************************************
  * The MIT License
  *
- * Copyright (c) 2010 LeafLabs LLC.
+ * Copyright (c) 2011 LeafLabs LLC.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,60 +24,36 @@
  * SOFTWARE.
  *****************************************************************************/
 
-#ifndef _USB_H_
-#define _USB_H_
+/**
+ * @file usb_cdcacm.h
+ * @brief USB CDC ACM (virtual serial terminal) support
+ */
 
-#include "libmaple.h"
+#ifndef _USB_CDCACM_H_
+#define _USB_CDCACM_H_
+
+#include "libmaple_types.h"
 #include "gpio.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*
- * Convenience routines, etc.
- */
+void usb_cdcacm_enable(gpio_dev*, uint8);
+void usb_cdcacm_disable(gpio_dev*, uint8);
 
-typedef enum {
-    RESUME_EXTERNAL,
-    RESUME_INTERNAL,
-    RESUME_LATER,
-    RESUME_WAIT,
-    RESUME_START,
-    RESUME_ON,
-    RESUME_OFF,
-    RESUME_ESOF
-} RESUME_STATE;
+void   usb_cdcacm_putc(char ch);
+uint32 usb_cdcacm_tx(const uint8* buf, uint32 len);
+uint32 usb_cdcacm_rx(uint8* buf, uint32 len);
 
-typedef enum {
-    UNCONNECTED,
-    ATTACHED,
-    POWERED,
-    SUSPENDED,
-    ADDRESSED,
-    CONFIGURED
-} DEVICE_STATE;
+uint32 usb_cdcacm_data_available(void); /* in RX buffer */
+uint16 usb_cdcacm_get_pending(void);
 
-extern volatile uint32 bDeviceState;
-
-struct _DEVICE_PROP;
-struct _USER_STANDARD_REQUESTS;
-void usb_init_usblib(struct _DEVICE_PROP*,
-                     struct _USER_STANDARD_REQUESTS*);
-
-void usbSuspend(void);
-void usbResumeInit(void);
-void usbResume(RESUME_STATE);
-
-/* overloaded ISR routine, this is the main usb ISR */
-void __irq_usb_lp_can_rx0(void);
-void usbWaitReset(void);
-
-uint8 usbIsConnected(void);
-uint8 usbIsConfigured(void);
+uint8 usb_cdcacm_get_dtr(void);
+uint8 usb_cdcacm_get_rts(void);
 
 #ifdef __cplusplus
-} // extern "C"
+}
 #endif
 
-#endif // _USB_H_
+#endif
