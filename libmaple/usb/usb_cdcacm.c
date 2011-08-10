@@ -439,6 +439,8 @@ void usbReset(void) {
     usb_set_ep_tx_stat(VCOM_NOTIFICATION_ENDP, USB_EP_STAT_TX_NAK);
     usb_set_ep_rx_stat(VCOM_NOTIFICATION_ENDP, USB_EP_STAT_RX_DISABLED);
 
+    /* TODO figure out differences in style between RX/TX EP setup */
+
     /* set up data endpoint OUT (RX) */
     usb_set_ep_type(VCOM_RX_ENDP, USB_EP_EP_TYPE_BULK);
     usb_set_ep_rx_addr(VCOM_RX_ENDP, 0x110);
@@ -565,7 +567,6 @@ RESULT usbGetInterfaceSetting(uint8 interface, uint8 alt_setting) {
 
     return USB_SUCCESS;
 }
-
 
 u8* usbGetDeviceDescriptor(u16 length) {
     return Standard_GetDescriptorData(length, &Device_Descriptor);
