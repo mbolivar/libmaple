@@ -75,12 +75,7 @@ typedef enum {
 
 extern volatile uint32 bDeviceState;
 
-struct _DEVICE_PROP;
-struct _USER_STANDARD_REQUESTS;
-void usb_init_usblib(struct _DEVICE_PROP*,
-                     struct _USER_STANDARD_REQUESTS*,
-                     void (**ep_int_in)(void),
-                     void (**ep_int_out)(void));
+void usb_init_usblib(void (**ep_int_in)(void), void (**ep_int_out)(void));
 
 void usbSuspend(void);
 void usbResumeInit(void);

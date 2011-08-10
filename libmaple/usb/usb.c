@@ -50,12 +50,9 @@ static void dispatch_ctr_lp(void);
  * usb_lib/ globals
  */
 
-volatile uint16 wIstr = 0;
-DEVICE_INFO *pInformation;
-DEVICE_PROP *pProperty;
+volatile uint16 wIstr = 0;      /* most recently read value of wIstr */
 uint16 SaveTState;              /* caches TX status for later use */
 uint16 SaveRState;              /* caches RX status for later use */
-USER_STANDARD_REQUESTS *pUser_Standard_Requests;
 
 /*
  * Other state
@@ -78,20 +75,21 @@ usblib_dev *USBLIB = &usblib;
  * Routines
  */
 
-void usb_init_usblib(DEVICE_PROP *device,
-                     USER_STANDARD_REQUESTS *user,
-                     void (**ep_int_in)(void),
-                     void (**ep_int_out)(void)) {
+void usb_init_usblib(void (**ep_int_in)(void), void (**ep_int_out)(void)) {
     rcc_clk_enable(RCC_USB);
 
     USBLIB->ep_int_in = ep_int_in;
     USBLIB->ep_int_out = ep_int_out;
 
+    /* usb_lib/ declares both and then assumes that pFoo points to Foo
+     * (even though the names don't always match), which is stupid for
+     * all of the obvious reasons, but whatever.  Here we are. */
     pInformation = &Device_Info;
+    pProperty = &Device_Property;
+    pUser_Standard_Requests = &User_Standard_Requests;
+
     pInformation->ControlState = 2; /* FIXME [0.0.12] use
                                        CONTROL_STATE enumerator */
-    pProperty = device;
-    pUser_Standard_Requests = user;
     pProperty->Init();
 }
 
