@@ -118,6 +118,11 @@ typedef enum {
   DTR_LOW
 } RESET_STATE;
 
+/* Some forward-declared callbacks */
+void vcomDataTxCb(void);
+void vcomDataRxCb(void);
+void vcomManagementCb(void);
+
 const USB_Descriptor_Device usbVcomDescriptor_Device = {
     .bLength            = sizeof(USB_Descriptor_Device),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_DEVICE,
@@ -305,6 +310,24 @@ volatile uint32 maxNewBytes   = VCOM_RX_BUFLEN;
 volatile uint32 newBytes = 0;
 RESET_STATE reset_state = DTR_UNSET;
 uint8       line_dtr_rts = 0;
+
+static void (*ep_int_in[7])(void) =
+    {vcomDataTxCb,
+     vcomManagementCb,
+     NOP_Process,
+     NOP_Process,
+     NOP_Process,
+     NOP_Process,
+     NOP_Process};
+
+static void (*ep_int_out[7])(void) =
+    {NOP_Process,
+     NOP_Process,
+     vcomDataRxCb,
+     NOP_Process,
+     NOP_Process,
+     NOP_Process,
+     NOP_Process};
 
 /*
  * VCOM callbacks
@@ -631,24 +654,6 @@ USER_STANDARD_REQUESTS User_Standard_Requests =
      NOP_Process,
      NOP_Process,
      usbSetDeviceAddress};
-
-static void (*ep_int_in[7])(void) =
-    {vcomDataTxCb,
-     vcomManagementCb,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process};
-
-static void (*ep_int_out[7])(void) =
-    {NOP_Process,
-     NOP_Process,
-     vcomDataRxCb,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process};
 
 /*
  * CDC ACM routines
