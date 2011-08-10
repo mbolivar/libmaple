@@ -51,7 +51,6 @@ static void dispatch_ctr_lp(void);
  */
 
 volatile uint16 wIstr = 0;
-uint8 EPindex;                  /* current endpoint */
 DEVICE_INFO *pInformation;
 DEVICE_PROP *pProperty;
 uint16 SaveTState;              /* caches TX status for later use */
