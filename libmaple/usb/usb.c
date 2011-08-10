@@ -55,7 +55,6 @@ DEVICE_INFO *pInformation;
 DEVICE_PROP *pProperty;
 uint16 SaveTState;              /* caches TX status for later use */
 uint16 SaveRState;              /* caches RX status for later use */
-DEVICE_INFO Device_Info;
 USER_STANDARD_REQUESTS *pUser_Standard_Requests;
 
 /*
