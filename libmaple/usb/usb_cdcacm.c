@@ -389,7 +389,6 @@ u8* vcomGetSetLineCoding(uint16 length) {
 void vcomSetLineState(void) {
 }
 
-
 RESULT usbPowerOn(void) {
     USB_BASE->CNTR = USB_CNTR_FRES;
 
