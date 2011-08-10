@@ -46,7 +46,6 @@ extern DEVICE_INFO *pInformation;
 extern DEVICE Device_Table;
 extern u16 SaveRState;
 extern u16 SaveTState;
-extern u16 SaveState;
 
 #ifdef __cplusplus
 }
