@@ -392,11 +392,11 @@ void vcomSetLineState(void) {
 RESULT usbPowerOn(void) {
     USB_BASE->CNTR = USB_CNTR_FRES;
 
-    wInterrupt_Mask = 0;
-    USB_BASE->CNTR = wInterrupt_Mask;
+    USBLIB->irq_mask = 0;
+    USB_BASE->CNTR = USBLIB->irq_mask;
     USB_BASE->ISTR = 0;
-    wInterrupt_Mask = USB_CNTR_RESETM | USB_CNTR_SUSPM | USB_CNTR_WKUPM;
-    USB_BASE->CNTR = wInterrupt_Mask;
+    USBLIB->irq_mask = USB_CNTR_RESETM | USB_CNTR_SUSPM | USB_CNTR_WKUPM;
+    USB_BASE->CNTR = USBLIB->irq_mask;
 
     return USB_SUCCESS;
 }
@@ -406,8 +406,8 @@ void usbInit(void) {
     usbPowerOn();
 
     USB_BASE->ISTR = 0;
-    wInterrupt_Mask = USB_ISR_MSK;
-    USB_BASE->CNTR = wInterrupt_Mask;
+    USBLIB->irq_mask = USB_ISR_MSK;
+    USB_BASE->CNTR = USBLIB->irq_mask;
 
     nvic_irq_enable(NVIC_USB_LP_CAN_RX0);
     bDeviceState = UNCONNECTED;
@@ -632,7 +632,7 @@ USER_STANDARD_REQUESTS User_Standard_Requests =
      NOP_Process,
      usbSetDeviceAddress};
 
-void (*pEpInt_IN[7])(void) =
+static void (*ep_int_in[7])(void) =
     {vcomDataTxCb,
      vcomManagementCb,
      NOP_Process,
@@ -641,7 +641,7 @@ void (*pEpInt_IN[7])(void) =
      NOP_Process,
      NOP_Process};
 
-void (*pEpInt_OUT[7])(void) =
+static void (*ep_int_out[7])(void) =
     {NOP_Process,
      NOP_Process,
      vcomDataRxCb,
@@ -660,7 +660,10 @@ void usb_cdcacm_enable(gpio_dev *disc_dev, uint8 disc_bit) {
     gpio_write_bit(disc_dev, disc_bit, 0); // presents us to the host
 
     /* initialize USB peripheral */
-    usb_init_usblib(&Device_Property, &User_Standard_Requests);
+    usb_init_usblib(&Device_Property,
+                    &User_Standard_Requests,
+                    ep_int_in,
+                    ep_int_out);
 }
 
 void usb_cdcacm_disable(gpio_dev *disc_dev, uint8 disc_bit) {

@@ -34,8 +34,6 @@
 extern "C" {
 #endif
 
-extern void (*pEpInt_IN[7])(void);
-extern void (*pEpInt_OUT[7])(void);
 extern DEVICE_PROP Device_Property;
 extern USER_STANDARD_REQUESTS User_Standard_Requests;
 extern DEVICE  Device_Table;
@@ -45,8 +43,7 @@ extern u16 SaveTState;
 extern DEVICE_INFO* pInformation;
 extern DEVICE_PROP* pProperty;
 extern USER_STANDARD_REQUESTS *pUser_Standard_Requests;
-extern u16 SaveState ;
-extern u16 wInterrupt_Mask;
+extern u16 SaveState;
 
 #ifdef __cplusplus
 }

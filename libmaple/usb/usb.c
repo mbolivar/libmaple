@@ -56,7 +56,6 @@ DEVICE_INFO *pInformation;
 DEVICE_PROP *pProperty;
 uint16 SaveTState;              /* caches TX status for later use */
 uint16 SaveRState;              /* caches RX status for later use */
-uint16 wInterrupt_Mask;
 DEVICE_INFO Device_Info;
 USER_STANDARD_REQUESTS *pUser_Standard_Requests;
 
@@ -72,12 +71,23 @@ struct {
   volatile uint8 bESOFcnt;
 } ResumeS;
 
+static usblib_dev usblib = {
+    .irq_mask = USB_ISR_MSK,
+};
+usblib_dev *USBLIB = &usblib;
+
 /*
  * Routines
  */
 
-void usb_init_usblib(DEVICE_PROP *device, USER_STANDARD_REQUESTS *user) {
+void usb_init_usblib(DEVICE_PROP *device,
+                     USER_STANDARD_REQUESTS *user,
+                     void (**ep_int_in)(void),
+                     void (**ep_int_out)(void)) {
     rcc_clk_enable(RCC_USB);
+
+    USBLIB->ep_int_in = ep_int_in;
+    USBLIB->ep_int_out = ep_int_out;
 
     pInformation = &Device_Info;
     pInformation->ControlState = 2; /* FIXME [0.0.12] use
@@ -168,33 +178,33 @@ void __irq_usb_lp_can_rx0(void) {
   /* Use USB_ISR_MSK to only include code for bits we care about. */
 
 #if (USB_ISR_MSK & USB_ISTR_RESET)
-  if (wIstr & USB_ISTR_RESET & wInterrupt_Mask) {
+  if (wIstr & USB_ISTR_RESET & USBLIB->irq_mask) {
     USB_BASE->ISTR = ~USB_ISTR_RESET;
     pProperty->Reset();
   }
 #endif
 
 #if (USB_ISR_MSK & USB_ISTR_PMAOVR)
-  if (wIstr & ISTR_PMAOVR & wInterrupt_Mask) {
+  if (wIstr & ISTR_PMAOVR & USBLIB->irq_mask) {
     USB_BASE->ISTR = ~USB_ISTR_PMAOVR;
   }
 #endif
 
 #if (USB_ISR_MSK & USB_ISTR_ERR)
-  if (wIstr & USB_ISTR_ERR & wInterrupt_Mask) {
+  if (wIstr & USB_ISTR_ERR & USBLIB->irq_mask) {
     USB_BASE->ISTR = ~USB_ISTR_ERR;
   }
 #endif
 
 #if (USB_ISR_MSK & USB_ISTR_WKUP)
-  if (wIstr & USB_ISTR_WKUP & wInterrupt_Mask) {
+  if (wIstr & USB_ISTR_WKUP & USBLIB->irq_mask) {
     USB_BASE->ISTR = ~USB_ISTR_WKUP;
     usbResume(RESUME_EXTERNAL);
   }
 #endif
 
 #if (USB_ISR_MSK & USB_ISTR_SUSP)
-  if (wIstr & USB_ISTR_SUSP & wInterrupt_Mask) {
+  if (wIstr & USB_ISTR_SUSP & USBLIB->irq_mask) {
     /* check if SUSPEND is possible */
     if (SUSPEND_ENABLED) {
         usbSuspend();
@@ -208,14 +218,14 @@ void __irq_usb_lp_can_rx0(void) {
 #endif
 
 #if (USB_ISR_MSK & USB_ISTR_SOF)
-  if (wIstr & USB_ISTR_SOF & wInterrupt_Mask) {
+  if (wIstr & USB_ISTR_SOF & USBLIB->irq_mask) {
     USB_BASE->ISTR = ~USB_ISTR_SOF;
     bIntPackSOF++;
   }
 #endif
 
 #if (USB_ISR_MSK & USB_ISTR_ESOF)
-  if (wIstr & USB_ISTR_ESOF & wInterrupt_Mask) {
+  if (wIstr & USB_ISTR_ESOF & USBLIB->irq_mask) {
     USB_BASE->ISTR = ~USB_ISTR_ESOF;
     /* resume handling timing is made with ESOFs */
     usbResume(RESUME_ESOF); /* request without change of the machine state */
@@ -227,7 +237,7 @@ void __irq_usb_lp_can_rx0(void) {
    */
 
 #if (USB_ISR_MSK & USB_ISTR_CTR)
-  if (wIstr & USB_ISTR_CTR & wInterrupt_Mask) {
+  if (wIstr & USB_ISTR_CTR & USBLIB->irq_mask) {
     dispatch_ctr_lp();
   }
 #endif
@@ -348,11 +358,11 @@ static inline void dispatch_endpt(uint8 endpt) {
      * TODO try to find out if neither being set is possible. */
     if (epr & USB_EP_CTR_RX) {
         usb_clear_ctr_rx(endpt);
-        (pEpInt_OUT[endpt - 1])();
+        (USBLIB->ep_int_out[endpt - 1])();
     }
     if (epr & USB_EP_CTR_TX) {
         usb_clear_ctr_tx(endpt);
-        (pEpInt_IN[endpt - 1])();
+        (USBLIB->ep_int_in[endpt - 1])();
     }
 }
 

@@ -39,6 +39,15 @@ extern "C" {
 #define USB_ISR_MSK 0xBF00
 #endif
 
+/* Encapsulates global state formerly handled by usb_lib/
+ * functionality */
+typedef struct usblib_dev {
+    uint32 irq_mask;
+    void (**ep_int_in)(void);
+    void (**ep_int_out)(void);
+} usblib_dev;
+
+extern usblib_dev *USBLIB;
 
 /*
  * Convenience routines, etc.
@@ -69,7 +78,9 @@ extern volatile uint32 bDeviceState;
 struct _DEVICE_PROP;
 struct _USER_STANDARD_REQUESTS;
 void usb_init_usblib(struct _DEVICE_PROP*,
-                     struct _USER_STANDARD_REQUESTS*);
+                     struct _USER_STANDARD_REQUESTS*,
+                     void (**ep_int_in)(void),
+                     void (**ep_int_out)(void));
 
 void usbSuspend(void);
 void usbResumeInit(void);
