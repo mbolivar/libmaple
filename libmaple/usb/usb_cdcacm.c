@@ -439,13 +439,13 @@ void usbReset(void) {
     usb_set_ep_tx_stat(VCOM_NOTIFICATION_ENDP, USB_EP_STAT_TX_NAK);
     usb_set_ep_rx_stat(VCOM_NOTIFICATION_ENDP, USB_EP_STAT_RX_DISABLED);
 
-    /* FIXME lose the magic numbers */
-    usb_set_ep_type(3, USB_EP_EP_TYPE_BULK);
-    usb_set_ep_rx_addr(3, 0x110);
-    usb_set_ep_rx_count(3, 64);
-    usb_set_ep_rx_stat(3, USB_EP_STAT_RX_VALID);
+    /* set up data endpoint OUT (RX) */
+    usb_set_ep_type(VCOM_RX_ENDP, USB_EP_EP_TYPE_BULK);
+    usb_set_ep_rx_addr(VCOM_RX_ENDP, 0x110);
+    usb_set_ep_rx_count(VCOM_RX_ENDP, 64);
+    usb_set_ep_rx_stat(VCOM_RX_ENDP, USB_EP_STAT_RX_VALID);
 
-    /* setup data endpoint IN (tx)  */
+    /* set up data endpoint IN (TX)  */
     usb_set_ep_type(VCOM_TX_ENDP, USB_EP_EP_TYPE_BULK);
     usb_set_ep_tx_addr(VCOM_TX_ENDP, VCOM_TX_ADDR);
     usb_set_ep_tx_stat(VCOM_TX_ENDP, USB_EP_STAT_TX_NAK);
