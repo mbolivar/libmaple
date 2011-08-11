@@ -57,8 +57,6 @@ uint16 SaveRState;              /* caches RX status for later use */
  * Other state
  */
 
-volatile uint32 bIntPackSOF = 0;
-
 struct {
   volatile RESUME_STATE eState;
   volatile uint8 bESOFcnt;
@@ -215,7 +213,6 @@ void __irq_usb_lp_can_rx0(void) {
 #if (USB_ISR_MSK & USB_ISTR_SOF)
   if (istr & USB_ISTR_SOF & USBLIB->irq_mask) {
     USB_BASE->ISTR = ~USB_ISTR_SOF;
-    bIntPackSOF++;
   }
 #endif
 
