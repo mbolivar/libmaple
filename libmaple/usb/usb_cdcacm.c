@@ -433,7 +433,7 @@ void usbInit(void) {
     USB_BASE->CNTR = USBLIB->irq_mask;
 
     nvic_irq_enable(NVIC_USB_LP_CAN_RX0);
-    bDeviceState = UNCONNECTED;
+    USBLIB->state = USB_UNCONNECTED;
 }
 
 /* choose addresses to give endpoints the max 64 byte buffers */
@@ -477,7 +477,7 @@ void usbReset(void) {
     usb_set_ep_tx_stat(VCOM_TX_ENDP, USB_EP_STAT_TX_NAK);
     usb_set_ep_rx_stat(VCOM_TX_ENDP, USB_EP_STAT_RX_DISABLED);
 
-    bDeviceState = ATTACHED;
+    USBLIB->state = USB_ATTACHED;
     SetDeviceAddress(0);
 
     /* reset the rx fifo */
@@ -612,12 +612,12 @@ u8* usbGetStringDescriptor(u16 length) {
 /* internal callbacks to respond to standard requests */
 void usbSetConfiguration(void) {
     if (pInformation->Current_Configuration != 0) {
-        bDeviceState = CONFIGURED;
+        USBLIB->state = USB_CONFIGURED;
     }
 }
 
 void usbSetDeviceAddress(void) {
-    bDeviceState = ADDRESSED;
+    USBLIB->state = USB_ADDRESSED;
 }
 
 /*

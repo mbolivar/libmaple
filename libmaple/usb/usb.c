@@ -57,7 +57,6 @@ uint16 SaveRState;              /* caches RX status for later use */
  * Other state
  */
 
-volatile uint32 bDeviceState = UNCONNECTED;
 volatile uint32 bIntPackSOF = 0;
 
 struct {
@@ -67,6 +66,7 @@ struct {
 
 static usblib_dev usblib = {
     .irq_mask = USB_ISR_MSK,
+    .state = USB_UNCONNECTED,
 };
 usblib_dev *USBLIB = &usblib;
 
@@ -103,7 +103,7 @@ void usbSuspend(void) {
   cntr |= USB_CNTR_LP_MODE;
   USB_BASE->CNTR = cntr;
 
-  bDeviceState = SUSPENDED;
+  USBLIB->state = USB_SUSPENDED;
 }
 
 void usbResumeInit(void) {
@@ -245,11 +245,11 @@ void usbWaitReset(void) {
 }
 
 uint8 usbIsConfigured() {
-  return (bDeviceState == CONFIGURED);
+  return USBLIB->state == USB_CONFIGURED;
 }
 
 uint8 usbIsConnected() {
-  return (bDeviceState != UNCONNECTED);
+  return USBLIB->state != USB_UNCONNECTED;
 }
 
 /*
