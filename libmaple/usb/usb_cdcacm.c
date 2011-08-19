@@ -70,9 +70,6 @@
  * VCOM config
  */
 
-#define VCOM_ID_VENDOR            0x1EAF
-#define VCOM_ID_PRODUCT           0x0004
-
 #define VCOM_CTRL_EPNUM           0x00
 #define VCOM_CTRL_RX_ADDR         0x40
 #define VCOM_CTRL_TX_ADDR         0x80
@@ -94,8 +91,9 @@
 #define VCOM_RX_EPSIZE            0x40
 #define VCOM_RX_BUFLEN            (VCOM_RX_EPSIZE*3)
 
-#define USB_DEVICE_CLASS_CDC              0x02
-#define USB_DEVICE_SUBCLASS_CDC           0x00
+/*
+ * CDC ACM Requests
+ */
 
 #define SET_LINE_CODING        0x20
 #define GET_LINE_CODING        0x21
@@ -104,25 +102,19 @@
 #define CONTROL_LINE_DTR       (0x01)
 #define CONTROL_LINE_RTS       (0x02)
 
-typedef struct {
-  uint32 bitrate;
-  uint8  format;
-  uint8  paritytype;
-  uint8  datatype;
-} USB_Line_Coding;
-
-typedef enum {
-  DTR_UNSET,
-  DTR_HIGH,
-  DTR_NEGEDGE,
-  DTR_LOW
-} RESET_STATE;
+/*
+ * Descriptors
+ */
 
 /* Some forward-declared callbacks */
 void vcomDataTxCb(void);
 void vcomDataRxCb(void);
 void vcomManagementCb(void);
 
+#define USB_DEVICE_CLASS_CDC              0x02
+#define USB_DEVICE_SUBCLASS_CDC           0x00
+#define LEAFLABS_ID_VENDOR                0x1EAF
+#define MAPLE_ID_PRODUCT                  0x0004
 const USB_Descriptor_Device usbVcomDescriptor_Device = {
     .bLength            = sizeof(USB_Descriptor_Device),
     .bDescriptorType    = USB_DESCRIPTOR_TYPE_DEVICE,
@@ -131,8 +123,8 @@ const USB_Descriptor_Device usbVcomDescriptor_Device = {
     .bDeviceSubClass    = USB_DEVICE_SUBCLASS_CDC,
     .bDeviceProtocol    = 0x00,
     .bMaxPacketSize0    = 0x40,
-    .idVendor           = VCOM_ID_VENDOR,
-    .idProduct          = VCOM_ID_PRODUCT,
+    .idVendor           = LEAFLABS_ID_VENDOR,
+    .idProduct          = MAPLE_ID_PRODUCT,
     .bcdDevice          = 0x0200,
     .iManufacturer      = 0x01,
     .iProduct           = 0x02,
@@ -293,15 +285,31 @@ ONE_DESCRIPTOR String_Descriptor[3] = {
     {(uint8*)&usbVcomDescriptor_iProduct,     USB_DESCRIPTOR_STRING_LEN(8)}
 };
 
-uint8 last_request = 0;
+/*
+ * Etc.
+ */
 
+typedef enum {
+  DTR_UNSET,
+  DTR_HIGH,
+  DTR_NEGEDGE,
+  DTR_LOW
+} RESET_STATE;
+
+typedef struct {
+  uint32 bitrate;
+  uint8  format;
+  uint8  paritytype;
+  uint8  datatype;
+} USB_Line_Coding;
+
+uint8 last_request = 0;
 USB_Line_Coding line_coding = {
  bitrate:     115200,
  format:      0x00, /* stop bits-1 */
  paritytype:  0x00,
  datatype:    0x08
 };
-
 uint8 vcomBufferRx[VCOM_RX_BUFLEN];
 volatile uint32 countTx    = 0;
 volatile uint32 recvBufIn  = 0;
