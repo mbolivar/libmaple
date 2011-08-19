@@ -45,6 +45,13 @@
 #include "usb_def.h"
 
 static inline void prep_and_reset(unsigned);
+static inline RESULT usbPowerOn(void);
+
+void vcomDataTxCb(void);
+void vcomDataRxCb(void);
+void vcomManagementCb(void);
+uint8* vcomGetSetLineCoding(uint16);
+void vcomSetLineState(void);
 
 /******************************************************************************
  ******************************************************************************
@@ -107,11 +114,6 @@ static inline void prep_and_reset(unsigned);
 /*
  * Descriptors
  */
-
-/* Some forward-declared callbacks */
-void vcomDataTxCb(void);
-void vcomDataRxCb(void);
-void vcomManagementCb(void);
 
 #define USB_DEVICE_CLASS_CDC              0x02
 #define USB_DEVICE_SUBCLASS_CDC           0x00
@@ -321,6 +323,11 @@ volatile uint32 newBytes = 0;
 RESET_STATE reset_state = DTR_UNSET;
 uint8       line_dtr_rts = 0;
 
+/*
+ * Endpoint callbacks
+ */
+
+
 static void (*ep_int_in[7])(void) =
     {vcomDataTxCb,
      vcomManagementCb,
@@ -340,7 +347,157 @@ static void (*ep_int_out[7])(void) =
      NOP_Process};
 
 /*
- * VCOM callbacks
+ * Globals required by usb_lib/
+ */
+
+void usbInit(void);
+void usbReset(void);
+void usbStatusIn(void);
+void usbStatusOut(void);
+RESULT usbDataSetup(uint8);
+RESULT usbNoDataSetup(uint8);
+RESULT usbGetInterfaceSetting(uint8, uint8);
+uint8* usbGetDeviceDescriptor(uint16);
+uint8* usbGetConfigDescriptor(uint16);
+uint8* usbGetStringDescriptor(uint16);
+
+void usbSetConfiguration(void);
+void usbSetDeviceAddress(void);
+
+#define NUM_ENDPTS                0x04
+DEVICE Device_Table = {
+    .Total_Endpoint      = NUM_ENDPTS,
+    .Total_Configuration = 1
+};
+
+#define MAX_PACKET_SIZE            0x40  /* 64B, maximum for USB FS Devices */
+DEVICE_PROP Device_Property = {
+    .Init                        = usbInit,
+    .Reset                       = usbReset,
+    .Process_Status_IN           = usbStatusIn,
+    .Process_Status_OUT          = usbStatusOut,
+    .Class_Data_Setup            = usbDataSetup,
+    .Class_NoData_Setup          = usbNoDataSetup,
+    .Class_Get_Interface_Setting = usbGetInterfaceSetting,
+    .GetDeviceDescriptor         = usbGetDeviceDescriptor,
+    .GetConfigDescriptor         = usbGetConfigDescriptor,
+    .GetStringDescriptor         = usbGetStringDescriptor,
+    .RxEP_buffer                 = NULL,
+    .MaxPacketSize               = MAX_PACKET_SIZE
+};
+
+USER_STANDARD_REQUESTS User_Standard_Requests = {
+    .User_GetConfiguration   = NOP_Process,
+    .User_SetConfiguration   = usbSetConfiguration,
+    .User_GetInterface       = NOP_Process,
+    .User_SetInterface       = NOP_Process,
+    .User_GetStatus          = NOP_Process,
+    .User_ClearFeature       = NOP_Process,
+    .User_SetEndPointFeature = NOP_Process,
+    .User_SetDeviceFeature   = NOP_Process,
+    .User_SetDeviceAddress   = usbSetDeviceAddress
+};
+
+/*
+ * Public CDC ACM interface
+ */
+
+void usb_cdcacm_enable(gpio_dev *disc_dev, uint8 disc_bit) {
+    /* Present ourselves to the host */
+    gpio_set_mode(disc_dev, disc_bit, GPIO_OUTPUT_PP);
+    gpio_write_bit(disc_dev, disc_bit, 0); // presents us to the host
+
+    /* initialize USB peripheral */
+    usb_init_usblib(ep_int_in, ep_int_out);
+}
+
+void usb_cdcacm_disable(gpio_dev *disc_dev, uint8 disc_bit) {
+    // These are just guesses about how to do this, but it seems to work.
+    // TODO: verify this with USB spec
+    nvic_irq_disable(NVIC_USB_LP_CAN_RX0);
+    gpio_write_bit(disc_dev, disc_bit, 1);
+}
+
+void usb_cdcacm_putc(char ch) {
+    while (!usb_cdcacm_tx((uint8*)&ch, 1))
+        ;
+}
+
+/* This function is non-blocking.
+ *
+ * It copies data from a usercode buffer into the USB peripheral TX
+ * buffer and return the number placed in that buffer.
+ */
+uint32 usb_cdcacm_tx(const uint8* buf, uint32 len) {
+    /* Last transmission hasn't finished, abort */
+    if (countTx) {
+        return 0;
+    }
+
+    // We can only put VCOM_TX_EPSIZE bytes in the buffer
+    /* FIXME then why are we only copying half as many? */
+    if (len > VCOM_TX_EPSIZE / 2) {
+        len = VCOM_TX_EPSIZE / 2;
+    }
+
+    // Try to load some bytes if we can
+    if (len) {
+        usb_copy_to_pma(buf, len, VCOM_TX_ADDR);
+        usb_set_ep_tx_count(VCOM_TX_ENDP, len);
+        countTx += len;
+        usb_set_ep_tx_stat(VCOM_TX_ENDP, USB_EP_STAT_TX_VALID);
+    }
+
+    return len;
+}
+
+/* returns the number of available bytes are in the recv FIFO */
+uint32 usb_cdcacm_data_available(void) {
+    return newBytes;
+}
+
+uint16 usb_cdcacm_get_pending() {
+    return countTx;
+}
+
+/* Nonblocking byte receive.
+ *
+ * Copies up to len bytes from the local recieve FIFO (*NOT* the PMA)
+ * into buf and deq's the FIFO. */
+uint32 usb_cdcacm_rx(uint8* buf, uint32 len) {
+    if (len > newBytes) {
+        len = newBytes;
+    }
+
+    int i;
+    /* FIXME [0.0.12] this can't possibly be right; what happens to the
+     * uncopied bytes if the caller doesn't request everything that's
+     * available? */
+    for (i = 0; i < len; i++) {
+        buf[i] = vcomBufferRx[i];
+    }
+
+    newBytes -= len;
+
+    /* Re-enable the RX endpoint, which we had set to receive 0 bytes */
+    if (newBytes == 0) {
+        usb_set_ep_rx_count(VCOM_RX_ENDP, VCOM_RX_EPSIZE);
+        usb_set_ep_rx_stat(VCOM_RX_ENDP, USB_EP_STAT_RX_VALID);
+    }
+
+    return len;
+}
+
+uint8 usb_cdcacm_get_dtr() {
+    return ((line_dtr_rts & CONTROL_LINE_DTR) != 0);
+}
+
+uint8 usb_cdcacm_get_rts() {
+    return ((line_dtr_rts & CONTROL_LINE_RTS) != 0);
+}
+
+/*
+ * VCOM routines
  */
 
 void vcomDataTxCb(void) {
@@ -397,17 +554,9 @@ u8* vcomGetSetLineCoding(uint16 length) {
 void vcomSetLineState(void) {
 }
 
-RESULT usbPowerOn(void) {
-    USB_BASE->CNTR = USB_CNTR_FRES;
-
-    USBLIB->irq_mask = 0;
-    USB_BASE->CNTR = USBLIB->irq_mask;
-    USB_BASE->ISTR = 0;
-    USBLIB->irq_mask = USB_CNTR_RESETM | USB_CNTR_SUSPM | USB_CNTR_WKUPM;
-    USB_BASE->CNTR = USBLIB->irq_mask;
-
-    return USB_SUCCESS;
-}
+/*
+ * usb_lib Device_Property callbacks
+ */
 
 void usbInit(void) {
     pInformation->Current_Configuration = 0;
@@ -594,6 +743,10 @@ u8* usbGetStringDescriptor(u16 length) {
     return Standard_GetDescriptorData(length, &String_Descriptor[wValue0]);
 }
 
+/*
+ * usb_lib User_Standard_Request callbacks
+ */
+
 /* internal callbacks to respond to standard requests */
 void usbSetConfiguration(void) {
     if (pInformation->Current_Configuration != 0) {
@@ -603,142 +756,6 @@ void usbSetConfiguration(void) {
 
 void usbSetDeviceAddress(void) {
     USBLIB->state = USB_ADDRESSED;
-}
-
-/*
- * Globals required by usb_lib/
- */
-
-#define NUM_ENDPTS                0x04
-DEVICE Device_Table = {
-    .Total_Endpoint      = NUM_ENDPTS,
-    .Total_Configuration = 1
-};
-
-#define MAX_PACKET_SIZE            0x40  /* 64B, maximum for USB FS Devices */
-DEVICE_PROP Device_Property = {
-    .Init                        = usbInit,
-    .Reset                       = usbReset,
-    .Process_Status_IN           = usbStatusIn,
-    .Process_Status_OUT          = usbStatusOut,
-    .Class_Data_Setup            = usbDataSetup,
-    .Class_NoData_Setup          = usbNoDataSetup,
-    .Class_Get_Interface_Setting = usbGetInterfaceSetting,
-    .GetDeviceDescriptor         = usbGetDeviceDescriptor,
-    .GetConfigDescriptor         = usbGetConfigDescriptor,
-    .GetStringDescriptor         = usbGetStringDescriptor,
-    .RxEP_buffer                 = NULL,
-    .MaxPacketSize               = MAX_PACKET_SIZE
-};
-
-USER_STANDARD_REQUESTS User_Standard_Requests = {
-    .User_GetConfiguration   = NOP_Process,
-    .User_SetConfiguration   = usbSetConfiguration,
-    .User_GetInterface       = NOP_Process,
-    .User_SetInterface       = NOP_Process,
-    .User_GetStatus          = NOP_Process,
-    .User_ClearFeature       = NOP_Process,
-    .User_SetEndPointFeature = NOP_Process,
-    .User_SetDeviceFeature   = NOP_Process,
-    .User_SetDeviceAddress   = usbSetDeviceAddress
-};
-
-/*
- * Public CDC ACM interface
- */
-
-void usb_cdcacm_enable(gpio_dev *disc_dev, uint8 disc_bit) {
-    /* Present ourselves to the host */
-    gpio_set_mode(disc_dev, disc_bit, GPIO_OUTPUT_PP);
-    gpio_write_bit(disc_dev, disc_bit, 0); // presents us to the host
-
-    /* initialize USB peripheral */
-    usb_init_usblib(ep_int_in, ep_int_out);
-}
-
-void usb_cdcacm_disable(gpio_dev *disc_dev, uint8 disc_bit) {
-    // These are just guesses about how to do this, but it seems to work.
-    // TODO: verify this with USB spec
-    nvic_irq_disable(NVIC_USB_LP_CAN_RX0);
-    gpio_write_bit(disc_dev, disc_bit, 1);
-}
-
-void usb_cdcacm_putc(char ch) {
-    while (!usb_cdcacm_tx((uint8*)&ch, 1))
-        ;
-}
-
-/* This function is non-blocking.
- *
- * It copies data from a usercode buffer into the USB peripheral TX
- * buffer and return the number placed in that buffer.
- */
-uint32 usb_cdcacm_tx(const uint8* buf, uint32 len) {
-    /* Last transmission hasn't finished, abort */
-    if (countTx) {
-        return 0;
-    }
-
-    // We can only put VCOM_TX_EPSIZE bytes in the buffer
-    /* FIXME then why are we only copying half as many? */
-    if (len > VCOM_TX_EPSIZE / 2) {
-        len = VCOM_TX_EPSIZE / 2;
-    }
-
-    // Try to load some bytes if we can
-    if (len) {
-        usb_copy_to_pma(buf, len, VCOM_TX_ADDR);
-        usb_set_ep_tx_count(VCOM_TX_ENDP, len);
-        countTx += len;
-        usb_set_ep_tx_stat(VCOM_TX_ENDP, USB_EP_STAT_TX_VALID);
-    }
-
-    return len;
-}
-
-/* returns the number of available bytes are in the recv FIFO */
-uint32 usb_cdcacm_data_available(void) {
-    return newBytes;
-}
-
-uint16 usb_cdcacm_get_pending() {
-    return countTx;
-}
-
-/* Nonblocking byte receive.
- *
- * Copies up to len bytes from the local recieve FIFO (*NOT* the PMA)
- * into buf and deq's the FIFO. */
-uint32 usb_cdcacm_rx(uint8* buf, uint32 len) {
-    if (len > newBytes) {
-        len = newBytes;
-    }
-
-    int i;
-    /* FIXME [0.0.12] this can't possibly be right; what happens to the
-     * uncopied bytes if the caller doesn't request everything that's
-     * available? */
-    for (i = 0; i < len; i++) {
-        buf[i] = vcomBufferRx[i];
-    }
-
-    newBytes -= len;
-
-    /* Re-enable the RX endpoint, which we had set to receive 0 bytes */
-    if (newBytes == 0) {
-        usb_set_ep_rx_count(VCOM_RX_ENDP, VCOM_RX_EPSIZE);
-        usb_set_ep_rx_stat(VCOM_RX_ENDP, USB_EP_STAT_RX_VALID);
-    }
-
-    return len;
-}
-
-uint8 usb_cdcacm_get_dtr() {
-    return ((line_dtr_rts & CONTROL_LINE_DTR) != 0);
-}
-
-uint8 usb_cdcacm_get_rts() {
-    return ((line_dtr_rts & CONTROL_LINE_RTS) != 0);
 }
 
 /*
@@ -770,4 +787,16 @@ static inline void prep_and_reset(unsigned target) {
                    [exc_return] "r" (EXC_RETURN),
                    [cpsr] "r" (DEFAULT_CPSR)
                  : "r0", "r1", "r2");
+}
+
+RESULT usbPowerOn(void) {
+    USB_BASE->CNTR = USB_CNTR_FRES;
+
+    USBLIB->irq_mask = 0;
+    USB_BASE->CNTR = USBLIB->irq_mask;
+    USB_BASE->ISTR = 0;
+    USBLIB->irq_mask = USB_CNTR_RESETM | USB_CNTR_SUSPM | USB_CNTR_WKUPM;
+    USB_BASE->CNTR = USBLIB->irq_mask;
+
+    return USB_SUCCESS;
 }
