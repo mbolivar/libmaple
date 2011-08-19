@@ -44,6 +44,8 @@
 #include "usb_core.h"
 #include "usb_def.h"
 
+static inline void prep_and_reset(unsigned);
+
 /******************************************************************************
  ******************************************************************************
  ***
@@ -346,8 +348,6 @@ void vcomDataTxCb(void) {
     countTx = 0;
 }
 
-#define EXC_RETURN 0xFFFFFFF9
-#define DEFAULT_CPSR 0x61000000
 void vcomDataRxCb(void) {
     /* FIXME this is mad buggy */
 
@@ -363,8 +363,6 @@ void vcomDataRxCb(void) {
         reset_state = DTR_LOW;
 
         if  (newBytes >= 4) {
-            unsigned int target = (unsigned int)usbWaitReset | 0x1;
-
             usb_copy_from_pma(chkBuf, 4, VCOM_RX_ADDR);
 
             int i;
@@ -376,28 +374,7 @@ void vcomDataRxCb(void) {
             }
 
             if (cmpMatch) {
-                asm volatile("mov r0, %[stack_top]      \n\t" // Reset stack
-                             "mov sp, r0                \n\t"
-                             "mov r0, #1                \n\t"
-                             "mov r1, %[target_addr]    \n\t"
-                             "mov r2, %[cpsr]           \n\t"
-                             "push {r2}                 \n\t" // Fake xPSR
-                             "push {r1}                 \n\t" // PC target addr
-                             "push {r0}                 \n\t" // Fake LR
-                             "push {r0}                 \n\t" // Fake R12
-                             "push {r0}                 \n\t" // Fake R3
-                             "push {r0}                 \n\t" // Fake R2
-                             "push {r0}                 \n\t" // Fake R1
-                             "push {r0}                 \n\t" // Fake R0
-                             "mov lr, %[exc_return]     \n\t"
-                             "bx lr"
-                             :
-                             : [stack_top] "r" (STACK_TOP),
-                               [target_addr] "r" (target),
-                               [exc_return] "r" (EXC_RETURN),
-                               [cpsr] "r" (DEFAULT_CPSR)
-                             : "r0", "r1", "r2");
-                /* should never get here */
+                prep_and_reset((unsigned)usbWaitReset | 0x1);
             }
         }
     }
@@ -759,4 +736,35 @@ uint8 usb_cdcacm_get_dtr() {
 
 uint8 usb_cdcacm_get_rts() {
     return ((line_dtr_rts & CONTROL_LINE_RTS) != 0);
+}
+
+/*
+ * Auxiliary routines
+ */
+
+/* TODO come up with some better place to put this */
+#define EXC_RETURN 0xFFFFFFF9
+#define DEFAULT_CPSR 0x61000000
+static inline void prep_and_reset(unsigned target) {
+    asm volatile("mov r0, %[stack_top]      \n\t" // Reset stack
+                 "mov sp, r0                \n\t"
+                 "mov r0, #1                \n\t"
+                 "mov r1, %[target_addr]    \n\t"
+                 "mov r2, %[cpsr]           \n\t"
+                 "push {r2}                 \n\t" // Fake xPSR
+                 "push {r1}                 \n\t" // PC target addr
+                 "push {r0}                 \n\t" // Fake LR
+                 "push {r0}                 \n\t" // Fake R12
+                 "push {r0}                 \n\t" // Fake R3
+                 "push {r0}                 \n\t" // Fake R2
+                 "push {r0}                 \n\t" // Fake R1
+                 "push {r0}                 \n\t" // Fake R0
+                 "mov lr, %[exc_return]     \n\t"
+                 "bx lr"
+                 :
+                 : [stack_top] "r" (STACK_TOP),
+                   [target_addr] "r" (target),
+                   [exc_return] "r" (EXC_RETURN),
+                   [cpsr] "r" (DEFAULT_CPSR)
+                 : "r0", "r1", "r2");
 }
