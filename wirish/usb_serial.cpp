@@ -93,9 +93,9 @@ uint32 USBSerial::read(void *buf, uint32 len) {
 
 /* Blocks forever until 1 byte is received */
 uint8 USBSerial::read(void) {
-    uint8 buf[1];
-    this->read(buf, 1);
-    return buf[0];
+    uint8 b;
+    this->read(&b, 1);
+    return b;
 }
 
 uint8 USBSerial::pending(void) {
