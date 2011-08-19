@@ -290,15 +290,8 @@ ONE_DESCRIPTOR String_Descriptor[3] = {
 };
 
 /*
- * Etc.
+ * VCOM state
  */
-
-typedef enum {
-  DTR_UNSET,
-  DTR_HIGH,
-  DTR_NEGEDGE,
-  DTR_LOW
-} RESET_STATE;
 
 typedef struct {
   uint32 bitrate;
@@ -307,26 +300,61 @@ typedef struct {
   uint8  datatype;
 } USB_Line_Coding;
 
-uint8 last_request = 0;
-USB_Line_Coding line_coding = {
+static USB_Line_Coding line_coding = {
  bitrate:     115200,
  format:      0x00, /* stop bits-1 */
  paritytype:  0x00,
  datatype:    0x08
 };
-uint8 vcomBufferRx[VCOM_RX_BUFLEN];
-volatile uint32 countTx    = 0;
-volatile uint32 recvBufIn  = 0;
-volatile uint32 recvBufOut = 0;
-volatile uint32 maxNewBytes   = VCOM_RX_BUFLEN;
-volatile uint32 newBytes = 0;
-RESET_STATE reset_state = DTR_UNSET;
-uint8       line_dtr_rts = 0;
+static uint8 vcomBufferRx[VCOM_RX_BUFLEN];
+static volatile uint32 countTx    = 0;
+static volatile uint32 newBytes = 0;
+static uint8       line_dtr_rts = 0;
+
+/*
+ * USB autoreset configuration.
+ *
+ * This is a simple state machine on n states S0--S(n-1).  We begin at
+ * state S0; the board resets itself when it reaches S(n-1).
+ *
+ * State transitions are caused by arbitrary uint32 inputs (in this
+ * case, we use bits read from DTR/RTS line change notifications).
+ * For each state Si, input I_i_(i+1) causes a transition to S_(i+1).
+ * Any other input causes a transition back to S0.
+ */
+
+typedef enum ar_state { S0, S1, S2, S3, S4, S5, S6 } ar_state;
+#define AR_STATE_FINAL S6
+
+static volatile ar_state reset_state = S0;
+
+/* Desired input sequence */
+/* TODO */
+#error "pick an autoreset sequence!  also, fix reset.py."
+#define I_0_1 1
+#define I_1_2 2
+#define I_2_3 3
+#define I_3_4 4
+#define I_4_5 5
+#define I_5_6 6
+
+static ar_state ar_transition(ar_state cur, uint32 input) {
+#define TRANS_CASE(i,j) return input == I_##i##_##j ? S##j : S0
+
+    switch (cur) {
+    case S0: TRANS_CASE(0, 1);
+    case S1: TRANS_CASE(1, 2);
+    case S2: TRANS_CASE(2, 3);
+    case S3: TRANS_CASE(3, 4);
+    case S4: TRANS_CASE(4, 5);
+    case S5: TRANS_CASE(5, 6);
+    default: return S0;         /* for well-definedness */
+    }
+}
 
 /*
  * Endpoint callbacks
  */
-
 
 static void (*ep_int_in[7])(void) =
     {vcomDataTxCb,
@@ -506,36 +534,12 @@ void vcomDataTxCb(void) {
 }
 
 void vcomDataRxCb(void) {
-    /* FIXME this is mad buggy */
-
-    /* setEPRxCount on the previous cycle should garuntee
-       we havnt received more bytes than we can fit */
-    newBytes = usb_get_ep_rx_count(VCOM_RX_ENDP);
+    /* Refuse further bytes (it's up to usb_cdcacm_rx() to make the
+     * endpoint valid when it's ready) */
     usb_set_ep_rx_stat(VCOM_RX_ENDP, USB_EP_STAT_RX_NAK);
-
-    /* magic number, {0x31, 0x45, 0x41, 0x46} is "1EAF" */
-    uint8 chkBuf[4];
-    uint8 cmpBuf[4] = {0x31, 0x45, 0x41, 0x46};
-    if (reset_state == DTR_NEGEDGE) {
-        reset_state = DTR_LOW;
-
-        if  (newBytes >= 4) {
-            usb_copy_from_pma(chkBuf, 4, VCOM_RX_ADDR);
-
-            int i;
-            USB_Bool cmpMatch = TRUE;
-            for (i = 0; i < 4; i++) {
-                if (chkBuf[i] != cmpBuf[i]) {
-                    cmpMatch = FALSE;
-                }
-            }
-
-            if (cmpMatch) {
-                prep_and_reset((unsigned)usbWaitReset | 0x1);
-            }
-        }
-    }
-
+    /* Cache number of bytes available */
+    newBytes = usb_get_ep_rx_count(VCOM_RX_ENDP);
+    /* Copy bytes from PMA to our private buffer */
     usb_copy_from_pma(vcomBufferRx, newBytes, VCOM_RX_ADDR);
 }
 
@@ -615,9 +619,6 @@ void usbReset(void) {
     SetDeviceAddress(0);
 
     /* reset the rx fifo */
-    recvBufIn   = 0;
-    recvBufOut  = 0;
-    maxNewBytes = VCOM_RX_EPSIZE;
     countTx     = 0;
 }
 
@@ -636,13 +637,9 @@ RESULT usbDataSetup(uint8 request) {
 
     if (Type_Recipient == (CLASS_REQUEST | INTERFACE_RECIPIENT)) {
         switch (request) {
-        case (GET_LINE_CODING):
+        case GET_LINE_CODING:   /* fall through */
+        case SET_LINE_CODING:
             CopyRoutine = vcomGetSetLineCoding;
-            last_request = GET_LINE_CODING;
-            break;
-        case (SET_LINE_CODING):
-            CopyRoutine = vcomGetSetLineCoding;
-            last_request = SET_LINE_CODING;
             break;
         default:
             break;
@@ -666,48 +663,17 @@ RESULT usbNoDataSetup(u8 request) {
     if (Type_Recipient == (CLASS_REQUEST | INTERFACE_RECIPIENT)) {
 
         switch (request) {
-        case (SET_COMM_FEATURE):
+        case SET_COMM_FEATURE:
             return USB_SUCCESS;
-        case (SET_CONTROL_LINE_STATE):
-            /* to reset the board, pull both dtr and rts low
-               then pulse dtr by itself */
+        case SET_CONTROL_LINE_STATE:
             new_signal = (pInformation->USBwValues.bw.bb0 &
                           (CONTROL_LINE_DTR | CONTROL_LINE_RTS));
-            line_dtr_rts = new_signal & 0x03;
+            line_dtr_rts = new_signal;
 
-            switch (reset_state) {
-                /* no default, covered enum */
-            case DTR_UNSET:
-                if ((new_signal & CONTROL_LINE_DTR) == 0 ) {
-                    reset_state = DTR_LOW;
-                } else {
-                    reset_state = DTR_HIGH;
-                }
-                break;
-
-            case DTR_HIGH:
-                if ((new_signal & CONTROL_LINE_DTR) == 0 ) {
-                    reset_state = DTR_NEGEDGE;
-                } else {
-                    reset_state = DTR_HIGH;
-                }
-                break;
-
-            case DTR_NEGEDGE:
-                if ((new_signal & CONTROL_LINE_DTR) == 0 ) {
-                    reset_state = DTR_LOW;
-                } else {
-                    reset_state = DTR_HIGH;
-                }
-                break;
-
-            case DTR_LOW:
-                if ((new_signal & CONTROL_LINE_DTR) == 0 ) {
-                    reset_state = DTR_LOW;
-                } else {
-                    reset_state = DTR_HIGH;
-                }
-                break;
+            /* Autoreset handling */
+            reset_state = ar_transition(reset_state, new_signal);
+            if (reset_state == AR_STATE_FINAL) {
+                prep_and_reset((unsigned)usbWaitReset | 0x1);
             }
 
             return USB_SUCCESS;
