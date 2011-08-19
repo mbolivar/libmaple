@@ -610,38 +610,41 @@ void usbSetDeviceAddress(void) {
  */
 
 #define NUM_ENDPTS                0x04
-DEVICE Device_Table =
-    {NUM_ENDPTS,
-     1};
+DEVICE Device_Table = {
+    .Total_Endpoint      = NUM_ENDPTS,
+    .Total_Configuration = 1
+};
 
 #define MAX_PACKET_SIZE            0x40  /* 64B, maximum for USB FS Devices */
-DEVICE_PROP Device_Property =
-    {usbInit,
-     usbReset,
-     usbStatusIn,
-     usbStatusOut,
-     usbDataSetup,
-     usbNoDataSetup,
-     usbGetInterfaceSetting,
-     usbGetDeviceDescriptor,
-     usbGetConfigDescriptor,
-     usbGetStringDescriptor,
-     0,
-     MAX_PACKET_SIZE};
+DEVICE_PROP Device_Property = {
+    .Init                        = usbInit,
+    .Reset                       = usbReset,
+    .Process_Status_IN           = usbStatusIn,
+    .Process_Status_OUT          = usbStatusOut,
+    .Class_Data_Setup            = usbDataSetup,
+    .Class_NoData_Setup          = usbNoDataSetup,
+    .Class_Get_Interface_Setting = usbGetInterfaceSetting,
+    .GetDeviceDescriptor         = usbGetDeviceDescriptor,
+    .GetConfigDescriptor         = usbGetConfigDescriptor,
+    .GetStringDescriptor         = usbGetStringDescriptor,
+    .RxEP_buffer                 = NULL,
+    .MaxPacketSize               = MAX_PACKET_SIZE
+};
 
-USER_STANDARD_REQUESTS User_Standard_Requests =
-    {NOP_Process,
-     usbSetConfiguration,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process,
-     NOP_Process,
-     usbSetDeviceAddress};
+USER_STANDARD_REQUESTS User_Standard_Requests = {
+    .User_GetConfiguration   = NOP_Process,
+    .User_SetConfiguration   = usbSetConfiguration,
+    .User_GetInterface       = NOP_Process,
+    .User_SetInterface       = NOP_Process,
+    .User_GetStatus          = NOP_Process,
+    .User_ClearFeature       = NOP_Process,
+    .User_SetEndPointFeature = NOP_Process,
+    .User_SetDeviceFeature   = NOP_Process,
+    .User_SetDeviceAddress   = usbSetDeviceAddress
+};
 
 /*
- * CDC ACM routines
+ * Public CDC ACM interface
  */
 
 void usb_cdcacm_enable(gpio_dev *disc_dev, uint8 disc_bit) {
