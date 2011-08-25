@@ -49,6 +49,10 @@
 #include "HardwareTimer.h"
 #include "usb_serial.h"
 
+#ifdef WIRISH_ARDUINO_COMPAT
+#include "arduino_compat.h"
+#endif
+
 /* Arduino wiring macros and bit defines  */
 #define HIGH 0x1
 #define LOW  0x0
