@@ -41,6 +41,8 @@ public:
     USBSerial(void);
 
     void begin(void);
+    void begin(unsigned baud);
+
     void end(void);
 
     uint32 available(void);

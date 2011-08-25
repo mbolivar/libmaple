@@ -42,6 +42,12 @@ void USBSerial::begin(void) {
     setupUSB();
 }
 
+void USBSerial::begin(unsigned baud) {
+    // Baud rate ignored; this method is currently provided for the
+    // sake of compatibility only
+    begin();
+}
+
 void USBSerial::end(void) {
     disableUSB();
 }
