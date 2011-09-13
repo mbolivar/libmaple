@@ -40,6 +40,8 @@
 #include "nvic.h"
 #include "ring_buffer.h"
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -228,19 +230,11 @@ typedef struct usart_reg_map {
  * Devices
  */
 
-#ifndef USART_RX_BUF_SIZE
-#define USART_RX_BUF_SIZE               64
-#endif
-
 /** USART device type */
 typedef struct usart_dev {
     usart_reg_map *regs;             /**< Register map */
     ring_buffer *rb;                 /**< RX ring buffer */
     uint32 max_baud;                 /**< Maximum baud */
-    uint8 rx_buf[USART_RX_BUF_SIZE]; /**< @brief Deprecated.
-                                      * Actual RX buffer used by rb.
-                                      * This field will be removed in
-                                      * a future release. */
     rcc_clk_id clk_id;               /**< RCC clock information */
     nvic_irq_num irq_num;            /**< USART NVIC interrupt */
 } usart_dev;
@@ -253,7 +247,8 @@ extern usart_dev *UART4;
 extern usart_dev *UART5;
 #endif
 
-void usart_init(usart_dev *dev);
+int usart_init(usart_dev *dev);
+void usart_init_ex(usart_dev *dev, uint8 *rx_buf, size_t buf_size);
 void usart_set_baud_rate(usart_dev *dev, uint32 clock_speed, uint32 baud);
 void usart_enable(usart_dev *dev);
 void usart_disable(usart_dev *dev);

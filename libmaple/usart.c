@@ -33,6 +33,8 @@
 
 #include "usart.h"
 
+#include <stdlib.h>
+
 /*
  * Devices
  */
@@ -94,12 +96,40 @@ static usart_dev uart5 = {
 usart_dev *UART5 = &uart5;
 #endif
 
+#ifndef USART_RX_BUF_SIZE
+#define USART_RX_BUF_SIZE 64
+#endif
+
 /**
  * @brief Initialize a serial port.
+ *
+ * An attempt is made to initialize device's rb field with a
+ * newly-allocated buffer.  If the allocation fails, initialization
+ * will halt and errno will reflect the error.
+ *
  * @param dev         Serial port to be initialized
+ * @return positive if initialization was successful, 0 otherwise.
  */
-void usart_init(usart_dev *dev) {
-    rb_init(dev->rb, USART_RX_BUF_SIZE, dev->rx_buf);
+int usart_init(usart_dev *dev) {
+    uint8 *buf = malloc(USART_RX_BUF_SIZE);
+
+    if (!buf) {
+        return 0;
+    }
+
+    usart_init_ex(dev, buf, USART_RX_BUF_SIZE);
+    return 1;
+}
+
+/**
+ * @brief Initialize a serial port.
+ *
+ * @param dev      Serial port to be initialized
+ * @param rx_buf   Buffer to use for storing incoming bytes
+ * @param buf_size Length of rx_buf
+ */
+void usart_init_ex(usart_dev *dev, uint8 *rx_buf, size_t buf_size) {
+    rb_init(dev->rb, buf_size, rx_buf);
     rcc_clk_enable(dev->clk_id);
     nvic_irq_enable(dev->irq_num);
 }
