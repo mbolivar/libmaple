@@ -111,6 +111,9 @@ try:
         ser.setDTR(0)
         time.sleep(0.01)
         ser.write("1EAF")
+
+        # Windows quirk: delay a bit before proceeding
+        if plat_sys == 'Windows': time.sleep(0.5)
     finally:
         # ok we're done here
         ser.close()
