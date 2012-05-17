@@ -71,7 +71,7 @@ dma_dev *DMA2 = &dma2;
  * Routines
  */
 
-int dma_tube_cfg(dma_dev *dev, dma_channel channel, dma_tube_config *config) {
+int dma_tube_cfg(dma_dev *dev, dma_channel channel, dma_tube_config *cfg) {
     dma_channel_reg_map *channel_regs;
 
     /* Make sure config specifies a request source that dev/channel
@@ -79,8 +79,7 @@ int dma_tube_cfg(dma_dev *dev, dma_channel channel, dma_tube_config *config) {
      * we can otherwise safely ignore tube_req_src on this series. */
     if (config->tube_req_src != (dma_request_src)((dev->clk_id << 3) |
                                                   channel)) {
-        ASSERT(0);
-        return -1;
+        return DMA_TUBE_CFG_ECOMPAT;
     }
 
     dma_disable(dev, channel);
@@ -92,7 +91,7 @@ int dma_tube_cfg(dma_dev *dev, dma_channel channel, dma_tube_config *config) {
     channel_regs->CNDTR = config->tube_nr_xfers;
     channel_regs->CMAR = (uint32)config->tube_mem_addr;
     channel_regs->CPAR = (uint32)config->tube_per_addr;
-    return 0;
+    return DMA_TUBE_CFG_SUCCESS;
 }
 
 void dma_set_priority(dma_dev *dev,
@@ -106,7 +105,7 @@ void dma_set_priority(dma_dev *dev,
     channel_regs = dma_channel_regs(dev, channel);
     ccr = channel_regs->CCR;
     ccr &= ~DMA_CCR_PL;
-    ccr |= priority;
+    ccr |= (priority << 12);
     channel_regs->CCR = ccr;
 }
 

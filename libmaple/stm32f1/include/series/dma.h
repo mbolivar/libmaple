@@ -302,10 +302,9 @@ typedef struct dma_tube_reg_map {
  * Devices
  */
 
-struct dma_dev;
-extern struct dma_dev *DMA1;
+extern dma_dev *DMA1;
 #if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
-extern struct dma_dev *DMA2;
+extern dma_dev *DMA2;
 #endif
 
 /*
@@ -475,10 +474,10 @@ typedef enum dma_request_src {
 
 /**
  * @brief On STM32F1, dma_is_channel_enabled() is an alias for
- *        dma_is_tube_enabled().
+ *        dma_is_enabled().
  * This is for backwards compatibility.
  */
-#define dma_is_channel_enabled dma_is_tube_enabled
+#define dma_is_channel_enabled dma_is_enabled
 
 #define DMA_CHANNEL_NREGS 5     /* accounts for reserved word */
 static inline dma_tube_reg_map* dma_tube_regs(dma_dev *dev, dma_tube tube) {
@@ -491,7 +490,7 @@ static inline dma_tube_reg_map* dma_tube_regs(dma_dev *dev, dma_tube tube) {
  * This is for backwards compatibility. */
 #define dma_channel_regs(dev, ch) dma_tube_regs(dev, ch)
 
-static inline uint8 dma_is_tube_enabled(dma_dev *dev, dma_tube tube) {
+static inline uint8 dma_is_enabled(dma_dev *dev, dma_tube tube) {
     return (uint8)(dma_tube_regs(dev, tube)->CCR & DMA_CCR_EN);
 }
 

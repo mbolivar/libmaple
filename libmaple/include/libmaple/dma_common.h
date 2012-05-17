@@ -31,13 +31,15 @@
  *
  * WARNING: CONTENTS UNSTABLE
  *
- * There's a fair amount of common DMA functionality needed by each
- * <series/dma.h> and <libmaple/dma.h>. This header exists in order to
- * provide it to both, avoiding some hacks and circular dependencies.
+ * The existence of this file is an implementation detail.  Its
+ * contents are not stable, so never include it directly.  If you need
+ * something from here, #include <libmaple/dma.h> instead.
  *
- * The contents of this file are not stable (things can get moved
- * around without notice), so include <libmaple/dma.h> instead of this
- * file. */
+ * There's a fair amount of common DMA functionality needed by each
+ * <series/dma.h> and <libmaple/dma.h>.  This header exists in order
+ * to provide it to both, avoiding some hacks and circular
+ * dependencies.
+ */
 
 #ifndef _LIBMAPLE_DMA_COMMON_H_
 #define _LIBMAPLE_DMA_COMMON_H_

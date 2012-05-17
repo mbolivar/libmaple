@@ -79,6 +79,7 @@ extern "C"{
  *   definitions, dma_dev pointer declarations, and any other
  *   convenience functions useful for the series. */
 #include <series/dma.h>
+/* <libmaple/dma_common.h> buys us dma_dev and other necessities. */
 #include <libmaple/dma_common.h>
 #include <libmaple/libmaple_types.h>
 
@@ -132,11 +133,17 @@ void dma_init(dma_dev *dev);
  * @see dma_tube_cfg()
  */
 typedef struct dma_tube_config {
-    __io void     *tube_per_addr; /**< Peripheral data address */
+    __io void     *tube_per_addr; /**<
+                                   * @brief Peripheral data address
+                                   *
+                                   * This is the destination for
+                                   * memory-to-memory transfers. */
     dma_xfer_size  tube_per_size; /**< Peripheral data transfer size */
     __io void     *tube_mem_addr; /**< Memory data address */
     dma_xfer_size  tube_mem_size; /**< Memory data transfer size */
-    unsigned       tube_nr_xfers; /**< Number of transfers */
+    unsigned       tube_nr_xfers; /**<
+                                   * @brief Number of transfers
+                                   * From 0 to 65,535.*/
 
     /**
      * @brief Series-specific mode flags.
@@ -145,16 +152,24 @@ typedef struct dma_tube_config {
      * Consult the documentation for enum dma_mode_flags for your
      * series for what flags you can use here.
      *
-     * Typical examples include DMA_MINC_MODE, DMA_CIRC_MODE, etc.
-     */
+     * Typical examples include DMA_MINC_MODE, DMA_CIRC_MODE, etc. */
     uint32         tube_mode;
 
     /**
      * @brief Hardware DMA request source.
      * This is ignored if the transfer is memory-to-memory. */
     enum dma_request_src tube_req_src;
+
+    /**
+     * @brief Series-specific data.
+     * Currently unused. You must set this to 0. */
+    void *series_data;
 } dma_tube_config;
 
+
+#define DMA_TUBE_CFG_ECOMPAT (-1)
+#define DMA_TUBE_CFG_ENDATA  (-2)
+#define DMA_TUBE_CFG_SUCCESS 0
 /**
  * @brief Configure a DMA tube.
  *
@@ -168,17 +183,23 @@ typedef struct dma_tube_config {
  * After calling dma_tube_cfg() and performing any other desired
  * configuration, start the transfer using dma_enable().
  *
- * @param dev    DMA device.
- * @param tube   DMA tube to configure.
- * @param config Configuration to apply to tube.
- * @return 0 on success, <0 on failure.
+ * @param dev  DMA device.
+ * @param tube DMA tube to configure.
+ * @param cfg  Configuration to apply to tube.
+ *
+ * @return DMA_TUBE_CFG_SUCCESS (0) on success, <0 on failure. On
+ *         failure, returned value will be one of:
+ *         DMA_TUBE_CFG_ECOMPAT (tube is incompatible with config),
+ *         DMA_TUBE_ENDATA (memory and peripheral sizes are
+ *         incompatible with number of data to transfer).
+ *
  * @sideeffect Disables tube.
  * @see struct dma_tube_config
  * @see dma_attach_interrupt()
  * @see dma_detach_interrupt()
  * @see dma_enable()
  */
-extern int dma_tube_cfg(dma_dev *dev, dma_tube tube, dma_tube_config *config);
+extern int dma_tube_cfg(dma_dev *dev, dma_tube tube, dma_tube_config *cfg);
 
 /* Other tube configuration functions. You can use these if
  * dma_tube_cfg() isn't enough, or to adjust parts of an existing tube
@@ -310,7 +331,7 @@ extern void dma_disable(dma_dev *dev, dma_tube tube);
  * @param tube Tube to check.
  * @return 0 if the tube is disabled, >0 if it is enabled.
  */
-static inline uint8 dma_is_tube_enabled(dma_dev *dev, dma_tube tube);
+static inline uint8 dma_is_enabled(dma_dev *dev, dma_tube tube);
 
 /* Other conveniences */
 
@@ -335,7 +356,10 @@ typedef enum dma_irq_cause {
     DMA_TRANSFER_COMPLETE,      /**< Transfer is complete. */
     DMA_TRANSFER_HALF_COMPLETE, /**< Transfer is half complete. */
     DMA_TRANSFER_ERROR,         /**< Error occurred during transfer. */
-    /* TODO add other DMA IRQ reasons (FIFO error, etc.)  */
+    DMA_TRANSFER_DME_ERROR,     /**<
+                                 * @brief Direct mode error occurred during
+                                 *        transfer. */
+    DMA_TRANSFER_FIFO_ERROR,    /**< FIFO error occurred during transfer. */
 } dma_irq_cause;
 
 /**
@@ -355,7 +379,7 @@ typedef enum dma_irq_cause {
  * @see dma_attach_interrupt()
  * @see dma_irq_cause
  */
-dma_irq_cause dma_get_irq_cause(dma_dev *dev, dma_tube tube);
+extern dma_irq_cause dma_get_irq_cause(dma_dev *dev, dma_tube tube);
 
 /**
  * @brief Get the ISR status bits for a DMA channel.
