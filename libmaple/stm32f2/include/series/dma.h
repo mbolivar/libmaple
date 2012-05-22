@@ -170,8 +170,286 @@ typedef struct dma_tube_reg_map {
  * Register bit definitions
  */
 
-/* TODO */
+/* Low interrupt status register */
 
+#define DMA_LISR_TCIF3_BIT               27
+#define DMA_LISR_HTIF3_BIT               26
+#define DMA_LISR_TEIF3_BIT               25
+#define DMA_LISR_DMEIF3_BIT              24
+#define DMA_LISR_FEIF3_BIT               22
+#define DMA_LISR_TCIF2_BIT               21
+#define DMA_LISR_HTIF2_BIT               20
+#define DMA_LISR_TEIF2_BIT               19
+#define DMA_LISR_DMEIF2_BIT              18
+#define DMA_LISR_FEIF2_BIT               16
+#define DMA_LISR_TCIF1_BIT               11
+#define DMA_LISR_HTIF1_BIT               10
+#define DMA_LISR_TEIF1_BIT               9
+#define DMA_LISR_DMEIF1_BIT              8
+#define DMA_LISR_FEIF1_BIT               6
+#define DMA_LISR_TCIF0_BIT               5
+#define DMA_LISR_HTIF0_BIT               4
+#define DMA_LISR_TEIF0_BIT               3
+#define DMA_LISR_DMEIF0_BIT              2
+#define DMA_LISR_FEIF0_BIT               0
+
+
+#define DMA_LISR_TCIF3               (1U << DMA_LISR_TCIF3_BIT)
+#define DMA_LISR_HTIF3               (1U << DMA_LISR_HTIF3_BIT)
+#define DMA_LISR_TEIF3               (1U << DMA_LISR_TEIF3_BIT) 
+#define DMA_LISR_DMEIF3              (1U << DMA_LISR_DMEIF3_BIT)
+#define DMA_LISR_FEIF3               (1U << DMA_LISR_FEIF3_BIT) 
+#define DMA_LISR_TCIF2               (1U << DMA_LISR_TCIF2_BIT) 
+#define DMA_LISR_HTIF2               (1U << DMA_LISR_HTIF2_BIT) 
+#define DMA_LISR_TEIF2               (1U << DMA_LISR_TEIF2_BIT) 
+#define DMA_LISR_DMEIF2              (1U << DMA_LISR_DMEIF2_BIT) 
+#define DMA_LISR_FEIF2               (1U << DMA_LISR_FEIF2_BIT) 
+#define DMA_LISR_TCIF1               (1U << DMA_LISR_TCIF1_BIT) 
+#define DMA_LISR_HTIF1               (1U << DMA_LISR_HTIF1_BIT) 
+#define DMA_LISR_TEIF1               (1U << DMA_LISR_TEIF1_BIT) 
+#define DMA_LISR_DMEIF1              (1U << DMA_LISR_DMEIF1_BIT) 
+#define DMA_LISR_FEIF1               (1U << DMA_LISR_FEIF1_BIT) 
+#define DMA_LISR_TCIF0               (1U << DMA_LISR_TCIF0_BIT) 
+#define DMA_LISR_HTIF0               (1U << DMA_LISR_HTIF0_BIT) 
+#define DMA_LISR_TEIF0               (1U << DMA_LISR_TEIF0_BIT) 
+#define DMA_LISR_DMEIF0              (1U << DMA_LISR_DMEIF0_BIT) 
+#define DMA_LISR_FEIF0               (1U << DMA_LISR_FEIF0_BIT) 
+
+/* High interrupt status register */
+
+#define DMA_HISR_TCIF7_BIT               27
+#define DMA_HISR_HTIF7_BIT               26
+#define DMA_HISR_TEIF7_BIT               25
+#define DMA_HISR_DMEIF7_BIT              24
+#define DMA_HISR_FEIF7_BIT               22
+#define DMA_HISR_TCIF6_BIT               21
+#define DMA_HISR_HTIF6_BIT               20
+#define DMA_HISR_TEIF6_BIT               19
+#define DMA_HISR_DMEIF6_BIT              18
+#define DMA_HISR_FEIF6_BIT               16
+#define DMA_HISR_TCIF5_BIT               11
+#define DMA_HISR_HTIF5_BIT               10
+#define DMA_HISR_TEIF5_BIT               9
+#define DMA_HISR_DMEIF5_BIT              8
+#define DMA_HISR_FEIF5_BIT               6
+#define DMA_HISR_TCIF4_BIT               5
+#define DMA_HISR_HTIF4_BIT               4
+#define DMA_HISR_TEIF4_BIT               3
+#define DMA_HISR_DMEIF4_BIT              2
+#define DMA_HISR_FEIF4_BIT               0
+
+
+#define DMA_HISR_TCIF7               (1U << DMA_HISR_TCIF7_BIT)
+#define DMA_HISR_HTIF7               (1U << DMA_HISR_HTIF7_BIT)
+#define DMA_HISR_TEIF7               (1U << DMA_HISR_TEIF7_BIT) 
+#define DMA_HISR_DMEIF7              (1U << DMA_HISR_DMEIF7_BIT)
+#define DMA_HISR_FEIF7               (1U << DMA_HISR_FEIF7_BIT) 
+#define DMA_HISR_TCIF6               (1U << DMA_HISR_TCIF6_BIT) 
+#define DMA_HISR_HTIF6               (1U << DMA_HISR_HTIF6_BIT) 
+#define DMA_HISR_TEIF6               (1U << DMA_HISR_TEIF6_BIT) 
+#define DMA_HISR_DMEIF6              (1U << DMA_HISR_DMEIF6_BIT) 
+#define DMA_HISR_FEIF6               (1U << DMA_HISR_FEIF6_BIT) 
+#define DMA_HISR_TCIF5               (1U << DMA_HISR_TCIF5_BIT) 
+#define DMA_HISR_HTIF5               (1U << DMA_HISR_HTIF5_BIT) 
+#define DMA_HISR_TEIF5               (1U << DMA_HISR_TEIF5_BIT) 
+#define DMA_HISR_DMEIF5              (1U << DMA_HISR_DMEIF5_BIT) 
+#define DMA_HISR_FEIF5               (1U << DMA_HISR_FEIF5_BIT) 
+#define DMA_HISR_TCIF4               (1U << DMA_HISR_TCIF4_BIT) 
+#define DMA_HISR_HTIF4               (1U << DMA_HISR_HTIF4_BIT) 
+#define DMA_HISR_TEIF4               (1U << DMA_HISR_TEIF4_BIT) 
+#define DMA_HISR_DMEIF4              (1U << DMA_HISR_DMEIF4_BIT) 
+#define DMA_HISR_FEIF4               (1U << DMA_HISR_FEIF4_BIT) 
+
+
+/* Low interrupt flag clear register */
+
+#define DMA_LIFCR_CTCIF3_BIT             27
+#define DMA_LIFCR_CHTIF3_BIT             26
+#define DMA_LIFCR_TEIF3_BIT              25
+#define DMA_LIFCR_CDMEIF3_BIT            24
+#define DMA_LIFCR_CFEIF3_BIT             22
+#define DMA_LIFCR_CTCIF2_BIT             21
+#define DMA_LIFCR_CHTIF2_BIT             20
+#define DMA_LIFCR_CTEIF2_BIT             19
+#define DMA_LIFCR_CDMEIF2_BIT            18
+#define DMA_LIFCR_CFEIF1_BIT             16
+#define DMA_LIFCR_CTCIF1_BIT             11
+#define DMA_LIFCR_CHTIF1_BIT             10
+#define DMA_LIFCR_CTEIF1_BIT              9
+#define DMA_LIFCR_CDMEIF1_BIT             8
+#define DMA_LIFCR_CFEIF1_BIT              6
+#define DMA_LIFCR_CTCIF0_BIT              5
+#define DMA_LIFCR_CHTIF0_BIT              4
+#define DMA_LIFCR_CTEIF0_BIT              3
+#define DMA_LIFCR_CDMEIF0_BIT             2
+#define DMA_LIFCR_CFEIF0_BIT              0
+
+#define DMA_LIFCR_CTCIF3                 (1U << DMA_LIFCR_CTCIF3_BIT)
+#define DMA_LIFCR_CHTIF3                 (1U << DMA_LIFCR_CHTIF3_BIT)
+#define DMA_LIFCR_TEIF3                  (1U << DMA_LIFCR_TEIF3_BIT)
+#define DMA_LIFCR_CDMEIF3                (1U << DMA_LIFCR_CDMEIF3_BIT)
+#define DMA_LIFCR_CFEIF3                 (1U << DMA_LIFCR_CFEIF3_BIT)
+#define DMA_LIFCR_CTCIF2                 (1U << DMA_LIFCR_CTCIF2_BIT)
+#define DMA_LIFCR_CHTIF2                 (1U << DMA_LIFCR_CHTIF2_BIT)
+#define DMA_LIFCR_CTEIF2                 (1U << DMA_LIFCR_CTEIF2_BIT)
+#define DMA_LIFCR_CDMEIF2                (1U << DMA_LIFCR_CDMEIF2_BIT)
+#define DMA_LIFCR_CFEIF2                 (1U << DMA_LIFCR_CFEIF2_BIT)
+#define DMA_LIFCR_CTCIF1                 (1U << DMA_LIFCR_CTCIF1_BIT)
+#define DMA_LIFCR_CHTIF1                 (1U << DMA_LIFCR_CHTIF1_BIT)
+#define DMA_LIFCR_CTEIF1                 (1U << DMA_LIFCR_CTEIF1_BIT)
+#define DMA_LIFCR_CDMEIF1                (1U << DMA_LIFCR_CDMEIF1_BIT)
+#define DMA_LIFCR_CFEIF1                 (1U << DMA_LIFCR_CFEIF1_BIT)
+#define DMA_LIFCR_CTCIF0                 (1U << DMA_LIFCR_CTCIF0_BIT)
+#define DMA_LIFCR_CHTIF0                 (1U << DMA_LIFCR_CHTIF0_BIT)
+#define DMA_LIFCR_CTEIF0                 (1U << DMA_LIFCR_CTEIF0_BIT)
+#define DMA_LIFCR_CDMEIF0                (1U << DMA_LIFCR_CDMEIF0_BIT)
+#define DMA_LIFCR_CFEIF0                 (1U << DMA_LIFCR_CFEIF0_BIT)
+
+/* High interrupt flag clear regsister */
+
+#define DMA_HIFCR_CTCIF7_BIT             27
+#define DMA_HIFCR_CHTIF7_BIT             26
+#define DMA_HIFCR_TEIF7_BIT              25
+#define DMA_HIFCR_CDMEIF7_BIT            24
+#define DMA_HIFCR_CFEIF7_BIT             22
+#define DMA_HIFCR_CTCIF6_BIT             21
+#define DMA_HIFCR_CHTIF6_BIT             20
+#define DMA_HIFCR_CTEIF6_BIT             19
+#define DMA_HIFCR_CDMEIF6_BIT            18
+#define DMA_HIFCR_CFEIF5_BIT             16
+#define DMA_HIFCR_CTCIF5_BIT             11
+#define DMA_HIFCR_CHTIF5_BIT             10
+#define DMA_HIFCR_CTEIF5_BIT              9
+#define DMA_HIFCR_CDMEIF5_BIT             8
+#define DMA_HIFCR_CFEIF5_BIT              6
+#define DMA_HIFCR_CTCIF4_BIT              5
+#define DMA_HIFCR_CHTIF4_BIT              4
+#define DMA_HIFCR_CTEIF4_BIT              3
+#define DMA_HIFCR_CDMEIF4_BIT             2
+#define DMA_HIFCR_CFEIF4_BIT              0
+
+#define DMA_HIFCR_CTCIF7                 (1U << DMA_HIFCR_CTCIF7_BIT)
+#define DMA_HIFCR_CHTIF7                 (1U << DMA_HIFCR_CHTIF7_BIT)
+#define DMA_HIFCR_TEIF7                  (1U << DMA_HIFCR_TEIF7_BIT)
+#define DMA_HIFCR_CDMEIF7                (1U << DMA_HIFCR_CDMEIF7_BIT)
+#define DMA_HIFCR_CFEIF7                 (1U << DMA_HIFCR_CFEIF7_BIT)
+#define DMA_HIFCR_CTCIF6                 (1U << DMA_HIFCR_CTCIF6_BIT)
+#define DMA_HIFCR_CHTIF6                 (1U << DMA_HIFCR_CHTIF6_BIT)
+#define DMA_HIFCR_CTEIF6                 (1U << DMA_HIFCR_CTEIF6_BIT)
+#define DMA_HIFCR_CDMEIF6                (1U << DMA_HIFCR_CDMEIF6_BIT)
+#define DMA_HIFCR_CFEIF6                 (1U << DMA_HIFCR_CFEIF6_BIT)
+#define DMA_HIFCR_CTCIF5                 (1U << DMA_HIFCR_CTCIF5_BIT)
+#define DMA_HIFCR_CHTIF5                 (1U << DMA_HIFCR_CHTIF5_BIT)
+#define DMA_HIFCR_CTEIF5                 (1U << DMA_HIFCR_CTEIF5_BIT)
+#define DMA_HIFCR_CDMEIF5                (1U << DMA_HIFCR_CDMEIF5_BIT)
+#define DMA_HIFCR_CFEIF5                 (1U << DMA_HIFCR_CFEIF5_BIT)
+#define DMA_HIFCR_CTCIF4                 (1U << DMA_HIFCR_CTCIF4_BIT)
+#define DMA_HIFCR_CHTIF4                 (1U << DMA_HIFCR_CHTIF4_BIT)
+#define DMA_HIFCR_CTEIF4                 (1U << DMA_HIFCR_CTEIF4_BIT)
+#define DMA_HIFCR_CDMEIF4                (1U << DMA_HIFCR_CDMEIF4_BIT)
+#define DMA_HIFCR_CFEIF4                 (1U << DMA_HIFCR_CFEIF4_BIT)
+
+
+
+ /* Stream x configuration register */
+
+#define DMA_SxCR_CT_BIT             20
+#define DMA_SxCR_DBM_BIT            19
+#define DMA_SxCR_PINCOS_BIT         16
+#define DMA_SxCR_MINC_BIT           10
+#define DMA_SxCR_PINC_BIT           9
+
+#define DMA_SxCR_CIRC_BIT           8
+#define DMA_SxCR_PFCTRL_BIT         5
+#define DMA_SxCR_TCIE_BIT           4
+#define DMA_SxCR_HTIE_BIT           3
+#define DMA_SxCR_TEIE_BIT           2
+#define DMA_SxCR_DMEIE_BIT          1
+#define DMA_SxCR_EN_BIT             0
+
+#define DMA_CHSEL                   (0x7 << 25)
+#define DMA_CHSEL_0                 (0x0 << 25)
+#define DMA_CHSEL_1                 (0x1 << 25)
+#define DMA_CHSEL_2                 (0x2 << 25)
+#define DMA_CHSEL_3                 (0x3 << 25)
+#define DMA_CHSEL_4                 (0x4 << 25)
+#define DMA_CHSEL_5                 (0x5 << 25)
+#define DMA_CHSEL_6                 (0x6 << 25)
+#define DMA_CHSEL_7                 (0x7 << 25)
+
+#define DMA_MBURST                  (0x3 << 23)
+#define DMA_MBURST_SINGLE           (0x0 << 23)
+#define DMA_MBURST_INCR4            (0x1 << 23)
+#define DMA_MBURST_INCR8            (0x2 << 23)
+#define DMA_MBURST_INCR16           (0x3 << 23)
+
+#define DMA_PBURST                  (0x3 << 21)
+#define DMA_MBURST_SINGLE           (0x0 << 21)
+#define DMA_PBURST_INCR4            (0x1 << 21)
+#define DMA_PBURST_INCR8            (0x2 << 21)
+#define DMA_PBURST_INCR16           (0x3 << 21)
+
+#define DMA_SxCR_CT                 (1U << DMA_SxCR_CT_BIT)
+#define DMA_SxCR_DBM                (1U << DMA_SxCR_DBM_BIT)
+
+#define DMA_PL                      (0x3 << 16)
+#define DMA_PL_LOW                  (0x0 << 16)
+#define DMA_PL_MEDIUM               (0x1 << 16)
+#define DMA_PL_HIGH                 (0x2 << 16)
+#define DMA_VERY_HIGH               (0x3 << 16)
+
+
+#define DMA_SxCR_PINCOS             (1U << DMA_SxCR_PINCOS_BIT)
+
+#define DMA_MSIZE                   (0x3 << 13)
+#define DMA_MSIZE_8BITS             (0x0 << 13)
+#define DMA_MSIZE_16BITS            (0x1 << 13)
+#define DMA_MSIZE_32BITS            (0x2 << 13)
+
+#define DMA_PSIZE                   (0x3 << 11)
+#define DMA_PSIZE_8BITS             (0x0 << 11)
+#define DMA_PSIZE_16BITS            (0x1 << 11)
+#define DMA_PSIZE_32BITS            (0x2 << 11)
+
+#define DMA_SxCR_MINC               (1U << DMA_SxCR_MINC_BIT)
+#define DMA_SxCR_PINC               (1U << DMA_SxCR_PINC_BIT)
+#define DMA_SxCR_CIRC               (1U << DMA_SxCR_CIRC_BIT)
+
+#define DMA_DIR                     (0x3 << 6)
+#define DMA_DIR_PERIPH_TO_MEM       (0x0 << 6)
+#define DMA_DIR_MEM_TO_PERIPH       (0x1 << 6)
+#define DMA_DIR_MEM_TO_MEM          (0x2 << 6)
+
+#define DMA_SxCR_PFCTRL             (1U << DMA_SxCR_PFCTRL_BIT)
+#define DMA_SxCR_TCIE               (1U << DMA_SxCR_TCIE_BIT)
+#define DMA_SxCR_HTIE               (1U << DMA_SxCR_HTIE_BIT)
+#define DMA_SxCR_TEIE               (1U << DMA_SxCR_TEIE_BIT)
+#define DMA_SxCR_DMEIE              (1U << DMA_SxCR_DMEIE_BIT)
+#define DMA_SxCR_EN                 (1U << DMA_SxCR_EN_BIT)
+
+
+/**< Stream x FIFO control register */
+
+#define DMA_SxFCR_FEIE_BIT                            7
+#define DMA_SxFCR_DMDIS_BIT                           2
+
+#define DMA_SxFCR_FEIE                                (1U << DMA_SxCR_FEIE_BIT)
+
+#define DMA_SxFCR_FS                                  (0x7 << 3)
+#define DMA_SxFCR_FS_ZERO_TO_QUARTER                  (0x0 << 3)
+#define DMA_SxFCR_FS_QUARTER_TO_HALF                  (0x1 << 3)
+#define DMA_SxFCR_FS_HALF_TO_THREE_QUARTERS           (0x2 << 3)
+#define DMA_SxFCR_FS_THREE_QUARTERS_TO_FULL           (0x3 << 3)
+#define DMA_SxFCR_FS_EMPTY                            (0x4 << 3)
+#define DMA_SxFCR_FS_FULL                             (0x5 << 3)
+
+#define DMA_SxFCR_DMDIS                               (1U << DMA_SxCR_DMDIS_BIT)
+
+#define DMA_SxFCR_FTH                                 (0x3 << 0)
+#define DMA_SxFCR_FTH_QUARTER_FULL                    (0x0 << 3)
+#define DMA_SxFCR_FTH_HALF_FULL                       (0x1 << 3)
+#define DMA_SxFCR_FTH_THREE_QUARTERS_FULL             (0x2 << 3)
+#define DMA_SxFCR_FTH_FULL                            (0x3 << 3)
 /*
  * Devices
  */
