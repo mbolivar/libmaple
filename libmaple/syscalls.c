@@ -25,12 +25,14 @@
  *****************************************************************************/
 
 /**
- * @file syscalls.c
- * @brief Low level system routines used by Newlib for basic I/O and
- * memory allocation.
+ * @file libmaple/syscalls.c
+ * @brief newlib stubs
+ *
+ * Low level system routines used by Newlib for basic I/O and memory
+ * allocation.
  */
 
-#include "libmaple.h"
+#include <libmaple/libmaple.h>
 
 #include <sys/stat.h>
 #include <errno.h>

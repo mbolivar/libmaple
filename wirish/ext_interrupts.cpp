@@ -25,17 +25,16 @@
  *****************************************************************************/
 
 /**
- *  @file ext_interrupts.c
- *
- *  @brief Wiring-like interface for external interrupts
+ * @file wirish/ext_interrupts.c
+ * @brief Wiring-like interface for external interrupts
  */
 
-#include "ext_interrupts.h"
+#include <wirish/ext_interrupts.h>
 
-#include "gpio.h"
-#include "exti.h"
+#include <libmaple/gpio.h>
+#include <libmaple/exti.h>
 
-#include "boards.h"
+#include <wirish/boards.h>
 
 static inline exti_trigger_mode exti_out_mode(ExtIntTriggerMode mode);
 

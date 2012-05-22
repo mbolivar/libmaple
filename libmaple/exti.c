@@ -25,14 +25,14 @@
  *****************************************************************************/
 
 /**
- * @file exti.c
+ * @file libmaple/exti.c
  * @brief External interrupt control routines
  */
 
-#include "exti.h"
-#include "libmaple.h"
-#include "nvic.h"
-#include "bitband.h"
+#include <libmaple/exti.h>
+#include <libmaple/libmaple.h>
+#include <libmaple/nvic.h>
+#include <libmaple/bitband.h>
 
 static inline void dispatch_single_exti(uint32 exti_num);
 static inline void dispatch_extis(uint32 start, uint32 stop);

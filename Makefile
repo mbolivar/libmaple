@@ -41,27 +41,29 @@ include $(MAKEDIR)/target-config.mk
 ## Compilation flags
 ##
 
-GLOBAL_FLAGS    := -D$(VECT_BASE_ADDR)					     \
-		   -DBOARD_$(BOARD) -DMCU_$(MCU)			     \
-		   -DERROR_LED_PORT=$(ERROR_LED_PORT)			     \
-		   -DERROR_LED_PIN=$(ERROR_LED_PIN)			     \
-		   -D$(DENSITY)
+# FIXME: the following allows for deprecated include style, e.g.:
+#     #include "libmaple.h"
+# or
+#     #include "wirish.h"
+# It slows compilation noticeably; remove after 1 release.
+TARGET_FLAGS    += -I$(LIBMAPLE_PATH)/include/libmaple                       \
+                   -I$(WIRISH_PATH)/include/wirish
 GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2  -mcpu=cortex-m3 -mthumb -march=armv7-m \
 		   -nostdlib -ffunction-sections -fdata-sections	     \
-		   -Wl,--gc-sections $(GLOBAL_FLAGS)
-GLOBAL_CXXFLAGS := -fno-rtti -fno-exceptions -Wall $(GLOBAL_FLAGS)
+		   -Wl,--gc-sections $(TARGET_FLAGS)
+GLOBAL_CXXFLAGS := -fno-rtti -fno-exceptions -Wall $(TARGET_FLAGS)
 GLOBAL_ASFLAGS  := -mcpu=cortex-m3 -march=armv7-m -mthumb		     \
-		   -x assembler-with-cpp $(GLOBAL_FLAGS)
+		   -x assembler-with-cpp $(TARGET_FLAGS)
 LDFLAGS  = -T$(LDDIR)/$(LDSCRIPT) -L$(LDDIR)    \
-            -mcpu=cortex-m3 -mthumb -Xlinker -L $(LD_FAMILY_PATH)    \
+            -mcpu=cortex-m3 -mthumb -Xlinker -L $(LD_SERIES_PATH)    \
             --gc-sections --print-gc-sections --march=armv7-m -Wall
 
 ##
 ## Build rules and useful templates
 ##
 
-include $(SUPPORT_PATH)/make/build-rules.mk
-include $(SUPPORT_PATH)/make/build-templates.mk
+include $(MAKEDIR)/build-rules.mk
+include $(MAKEDIR)/build-templates.mk
 
 ##
 ## Set all submodules here
@@ -73,15 +75,16 @@ ifeq ($(LIBMAPLE_MODULES),)
 else
 	LIBMAPLE_MODULES += $(SRCROOT)/libmaple
 endif
-LIBMAPLE_MODULES += $(LIBMAPLE_MODULE_FAMILY) # family submodule in libmaple
+# LIBMAPLE_MODULES += $(SRCROOT)/libmaple/usb   # USB FS device
+LIBMAPLE_MODULES += $(LIBMAPLE_MODULE_SERIES) # STM32 series submodule in libmaple
 LIBMAPLE_MODULES += $(SRCROOT)/wirish
 # Official libraries:
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/Servo
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/LiquidCrystal
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/Wire
+# LIBMAPLE_MODULES += $(SRCROOT)/libraries/Servo
+# LIBMAPLE_MODULES += $(SRCROOT)/libraries/LiquidCrystal
+# LIBMAPLE_MODULES += $(SRCROOT)/libraries/Wire
 
 # Experimental libraries:
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/FreeRTOS
+# LIBMAPLE_MODULES += $(SRCROOT)/libraries/FreeRTOS
 
 # Call each module's rules.mk:
 $(foreach m,$(LIBMAPLE_MODULES),$(eval $(call LIBMAPLE_MODULE_template,$(m))))

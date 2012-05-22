@@ -3,37 +3,41 @@ sp              := $(sp).x
 dirstack_$(sp)  := $(d)
 d               := $(dir)
 BUILDDIRS       += $(BUILD_PATH)/$(d)
-BUILDDIRS       += $(BUILD_PATH)/$(d)/comm
-BUILDDIRS       += $(BUILD_PATH)/$(d)/boards
 
-WIRISH_INCLUDES := -I$(d) -I$(d)/comm -I$(d)/boards
+# Add board directory and MCU-specific directory to BUILDDIRS. These
+# are in subdirectories, but they're logically part of the Wirish
+# submodule.
+WIRISH_BOARD_PATH := boards/$(BOARD)
+BUILDDIRS += $(BUILD_PATH)/$(d)/$(WIRISH_BOARD_PATH)
+BUILDDIRS += $(BUILD_PATH)/$(d)/$(MCU_SERIES)
 
-# Local flags
-CFLAGS_$(d) := $(WIRISH_INCLUDES) $(LIBMAPLE_INCLUDES)
+# Safe includes for Wirish.
+WIRISH_INCLUDES := -I$(d)/include -I$(d)/$(WIRISH_BOARD_PATH)/include
+
+# Local flags. Add -I$(d) to allow for private includes.
+CFLAGS_$(d) := $(LIBMAPLE_INCLUDES) $(WIRISH_INCLUDES) -I$(d)
 
 # Local rules and targets
-
 sSRCS_$(d) := start.S
 cSRCS_$(d) := start_c.c
-cppSRCS_$(d) := wirish_math.cpp		 \
-                Print.cpp		 \
-		boards.cpp               \
-                boards/maple.cpp	 \
-                boards/maple_mini.cpp	 \
-                boards/maple_native.cpp	 \
-                boards/maple_RET6.cpp	 \
-                boards/olimex_stm32_h103.cpp \
-                comm/HardwareSerial.cpp	 \
-                comm/HardwareSPI.cpp	 \
-		HardwareTimer.cpp	 \
-                usb_serial.cpp		 \
-                cxxabi-compat.cpp	 \
-		wirish_shift.cpp	 \
-		wirish_analog.cpp	 \
-		wirish_time.cpp		 \
-		pwm.cpp 		 \
-		ext_interrupts.cpp	 \
-		wirish_digital.cpp
+cppSRCS_$(d) := boards.cpp
+# TODO: test these on F2 and put them back in:
+# cppSRCS_$(d) := wirish_math.cpp		 \
+#                 Print.cpp		 \
+#                 HardwareSerial.cpp	 \
+#                 HardwareSPI.cpp		 \
+# 		HardwareTimer.cpp	 \
+#                 usb_serial.cpp		 \
+#                 cxxabi-compat.cpp	 \
+# 		wirish_shift.cpp	 \
+# 		wirish_analog.cpp	 \
+# 		wirish_time.cpp		 \
+# 		pwm.cpp 		 \
+# 		ext_interrupts.cpp	 \
+# 		wirish_digital.cpp
+# TODO: Put this back in once we've got the necessary libmaple support back.
+# cppSRCS_$(d) += $(WIRISH_BOARD_PATH)/board.cpp
+cppSRCS_$(d) += $(MCU_SERIES)/boards_setup.cpp
 
 sFILES_$(d)   := $(sSRCS_$(d):%=$(d)/%)
 cFILES_$(d)   := $(cSRCS_$(d):%=$(d)/%)
