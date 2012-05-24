@@ -414,6 +414,7 @@ typedef struct dma_tube_reg_map {
 
 #define DMA_SFCR_FEIE_BIT                            7
 #define DMA_SFCR_DMDIS_BIT                           2
+
 #define DMA_SFCR_FEIE                                (1U << DMA_SFCR_FEIE_BIT)
 #define DMA_SFCR_FS                                  (0x7 << 3)
 #define DMA_SFCR_FS_ZERO_TO_QUARTER                  (0x0 << 3)
