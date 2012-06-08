@@ -49,7 +49,9 @@ extern "C"{
  *   that abstracts the conduit through which DMA-ed data flow.
  *
  *   Examples: On STM32F1, dma_tube is just an alias for dma_channel,
- *   and the tube values are just DMA_CH1 (=1), DMA_CH2 (=2), etc.
+ *   and the tube values are just DMA_CH1 (=1), DMA_CH2 (=2), etc. On
+ *   STM32F2/F4, dma_tube is an alias for dma_stream, and the tube
+ *   values are DMA_S0 (=0), DMA_S1 (=1), etc.
  *
  *   Note that a dma_tube doesn't have to be an enum, and its values
  *   don't have to be integral. They _do_ need to be cheap to pass as
@@ -64,7 +66,8 @@ extern "C"{
  * - Base pointers to the various dma_tube_reg_maps.
  *
  *   Examples: On STM32F1, these are DMAxCHy_BASE. You can access
- *   registers like DMAxCHy_BASE->CPAR, etc.
+ *   registers like DMAxCHy_BASE->CPAR. On STM32F2/F4, these are
+ *   DMAxSy_BASE. You can access registers like DMAxSy_BASE->CPAR.
  *
  * - enum dma_request_src (and typedef to dma_request_src). This
  *   specifies the peripheral DMA request sources (e.g. USART TX DMA
@@ -257,7 +260,7 @@ extern void dma_set_mem_addr(dma_dev *dev, dma_tube tube, __io void *address);
  * @brief Set the base peripheral address where data will be read from
  *        or written to.
  *
- * You must not call this function while the channel is enabled.
+ * You must not call this function while the tube is enabled.
  *
  * If the DMA peripheral size is 16 bits, the address is automatically
  * aligned to a half-word. If the DMA peripheral size is 32 bits, the
@@ -316,7 +319,7 @@ extern void dma_detach_interrupt(dma_dev *dev, dma_tube tube);
 extern void dma_enable(dma_dev *dev, dma_tube tube);
 
 /**
- * @brief Disable a DMA channel.
+ * @brief Disable a DMA tube.
  *
  * Calling this function makes the tube stop serving DMA requests.
  *
@@ -340,7 +343,8 @@ static inline uint8 dma_is_enabled(dma_dev *dev, dma_tube tube);
  *
  * Examples:
  *
- * - On STM32F1, dma_channel_regs(DMA1, DMA_CH1)->CCR is DMA1_BASE->CCR1.
+ * - On STM32F1, dma_tube_regs(DMA1, DMA_CH1)->CCR is DMA1_BASE->CCR1.
+ * - On STM32F2/F4, dma_tube_regs(DMA1, DMA_S0)->SCR is DMA1_BASE->S0CR.
  *
  * @param dev DMA device.
  * @param tube DMA tube whose register map to obtain.
@@ -366,7 +370,7 @@ typedef enum dma_irq_cause {
  * @brief Discover the reason why a DMA interrupt was called.
  *
  * You may only call this function within an attached interrupt
- * handler for the given channel.
+ * handler for the given tube.
  *
  * This function resets the internal DMA register state which encodes
  * the cause of the interrupt; consequently, it can only be called
@@ -382,7 +386,7 @@ typedef enum dma_irq_cause {
 extern dma_irq_cause dma_get_irq_cause(dma_dev *dev, dma_tube tube);
 
 /**
- * @brief Get the ISR status bits for a DMA channel.
+ * @brief Get the ISR status bits for a DMA tube.
  *
  * The bits are returned right-aligned, in the order they appear in
  * the corresponding ISR register.

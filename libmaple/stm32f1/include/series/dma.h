@@ -344,7 +344,7 @@ typedef enum dma_mode_flags {
  * DMA_REQ_SRC_ADC1 belongs to DMA1, tube 1. DMA2 cannot serve
  * requests from ADC1, nor can DMA1 tube 2, etc. If you try to use a
  * request source with the wrong DMA controller or tube on STM32F1,
- * you will fail an ASSERT() in dma_tube_cfg().
+ * dma_tube_cfg() will return an error.
  *
  * 2. In general, a DMA tube can only serve a single request source at
  * a time, and on STM32F1, Terrible Super-Bad Things will happen if
@@ -357,9 +357,8 @@ typedef enum dma_mode_flags {
  * @see dma_tube_cfg()
  */
 typedef enum dma_request_src {
-    /* Each request source encodes the DMA controller and channel it
-     * belongs to. This makes it easy to do error checking in
-     * dma_tube_cfg(). */
+    /* Each request source's value encodes the DMA controller and
+     * channel it belongs to, for error checking in dma_tube_cfg(). */
 
     /* DMA1 request sources */
 
