@@ -31,8 +31,6 @@
 #define USART_HWSER Serial2
 #define USART_DMA_DEV DMA1
 #define USART_RX_DMA_CHANNEL DMA_CH6
-#define USART_TX BOARD_USART2_TX_PIN
-#define USART_RX BOARD_USART2_RX_PIN
 
 #define BUF_SIZE 8
 uint8 rx_buf[BUF_SIZE];
