@@ -98,7 +98,7 @@ void loop(void) {
     USART_HWSER.print("\tBuffer contents: ");
     for (int i = 0; i < BUF_SIZE; i++) {
         USART_HWSER.print('\'');
-        USART_HWSER.print(rx_buf[i]);
+        USART_HWSER.print((char)rx_buf[i]);
         USART_HWSER.print('\'');
         if (i < BUF_SIZE - 1) USART_HWSER.print(", ");
     }
