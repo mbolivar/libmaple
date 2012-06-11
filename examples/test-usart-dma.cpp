@@ -70,7 +70,7 @@ void loop(void) {
     USART_HWSER.print("\tCNDTR: 0x");
     USART_HWSER.print(ch_regs->CNDTR, HEX);
     USART_HWSER.print("\tBuffer contents: ");
-     for (int i = 0; i < BUF_SIZE; i++) {
+    for (int i = 0; i < BUF_SIZE; i++) {
         USART_HWSER.print('\'');
         USART_HWSER.print(rx_buf[i]);
         USART_HWSER.print('\'');
