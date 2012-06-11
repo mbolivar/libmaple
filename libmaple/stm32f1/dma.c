@@ -77,20 +77,19 @@ int dma_tube_cfg(dma_dev *dev, dma_channel channel, dma_tube_config *cfg) {
     /* Make sure config specifies a request source that dev/channel
      * can actually serve. If not, the request is impossible. If so,
      * we can otherwise safely ignore tube_req_src on this series. */
-    if (config->tube_req_src != (dma_request_src)((dev->clk_id << 3) |
-                                                  channel)) {
+    if (cfg->tube_req_src != (dma_request_src)((dev->clk_id << 3) | channel)) {
         return DMA_TUBE_CFG_ECOMPAT;
     }
 
     dma_disable(dev, channel);
 
     channel_regs = dma_channel_regs(dev, channel);
-    channel_regs->CCR = ((config->tube_mem_size << 10) |
-                         (config->tube_per_size << 8) |
-                         config->tube_mode);
-    channel_regs->CNDTR = config->tube_nr_xfers;
-    channel_regs->CMAR = (uint32)config->tube_mem_addr;
-    channel_regs->CPAR = (uint32)config->tube_per_addr;
+    channel_regs->CCR = ((cfg->tube_mem_size << 10) |
+                         (cfg->tube_per_size << 8) |
+                         cfg->tube_mode);
+    channel_regs->CNDTR = cfg->tube_nr_xfers;
+    channel_regs->CMAR = (uint32)cfg->tube_mem_addr;
+    channel_regs->CPAR = (uint32)cfg->tube_per_addr;
     return DMA_TUBE_CFG_SUCCESS;
 }
 
