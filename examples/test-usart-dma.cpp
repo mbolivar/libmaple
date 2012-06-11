@@ -118,7 +118,9 @@ void init_usart(void) {
 /* Configure DMA transmission */
 void init_dma_xfer(void) {
     dma_init(USART_DMA_DEV);
-    dma_tube_cfg(USART_DMA_DEV, USART_RX_DMA_TUBE, &usart_tube_config);
+    int config_result = dma_tube_cfg(USART_DMA_DEV, USART_RX_DMA_TUBE,
+                                     &usart_tube_config);
+    ASSERT(config_result == DMA_TUBE_CFG_SUCCESS);
     dma_attach_interrupt(USART_DMA_DEV, USART_RX_DMA_TUBE, rx_dma_irq);
     dma_enable(USART_DMA_DEV, USART_RX_DMA_TUBE);
 }
