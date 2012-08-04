@@ -156,10 +156,7 @@ static void dtrPlusMagicBytesRXHook(unsigned, void*);
 static void magicBaudIfaceHook(unsigned, void*);
 #define magicBaudRXHook(request, data) ((void)0) // nop
 
-// FIXME remove the LED toggle; it's for debugging
-#include <wirish/wirish.h>
 static void ifaceSetupHook(unsigned hook, void *requestvp) {
-    digitalWrite(BOARD_LED_PIN, HIGH);
     // TODO remove old reset scheme?
     dtrPlusMagicBytesIfaceHook(hook, requestvp);
     magicBaudIfaceHook(hook, requestvp);
