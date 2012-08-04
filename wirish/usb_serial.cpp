@@ -143,7 +143,81 @@ USBSerial SerialUSB;
 #endif
 
 /*
- * Bootloader hook implementations
+ * Bootloader reset hooks
+ */
+
+// These hooks are for the reset sequence where you make a negative
+// edge on DTR, then send "1EAF" in-band.
+static void dtrPlusMagicBytesIfaceHook(unsigned, void*);
+static void dtrPlusMagicBytesRXHook(unsigned, void*);
+
+// These hooks are for the reset sequence where the host PC closes its
+// connection after setting the baud rate to 1200.
+static void magicBaudIfaceHook(unsigned, void*);
+#define magicBaudRXHook(request, data) ((void)0) // nop
+
+// FIXME remove the LED toggle; it's for debugging
+#include <wirish/wirish.h>
+static void ifaceSetupHook(unsigned hook, void *requestvp) {
+    digitalWrite(BOARD_LED_PIN, HIGH);
+    // TODO remove old reset scheme?
+    dtrPlusMagicBytesIfaceHook(hook, requestvp);
+    magicBaudIfaceHook(hook, requestvp);
+}
+
+static void rxHook(unsigned hook, void *requestvp) {
+    // TODO remove old reset scheme?
+    dtrPlusMagicBytesRXHook(hook, requestvp);
+    magicBaudRXHook(hook, requestvp);
+}
+
+/*
+ * Reset hook helpers
+ */
+
+#define RESET_DELAY 100000
+static void wait_reset(void) {
+    delay_us(RESET_DELAY);
+    nvic_sys_reset();
+}
+
+#define STACK_TOP 0x20000800
+#define EXC_RETURN 0xFFFFFFF9
+#define DEFAULT_CPSR 0x61000000
+
+// This macro resets the board when in interrupt context.
+#define RESET_INTO_BOOTLOADER()                                         \
+    do {                                                                \
+        /* Target address is wait_reset's, but set the thumb bit. */    \
+        unsigned int target = (unsigned int)wait_reset | 0x1;           \
+        delay_us(RESET_DELAY);                                          \
+        asm volatile("mov r0, %[stack_top]      \n\t" /* Reset stack */ \
+                     "mov sp, r0                \n\t"                   \
+                     "mov r0, #1                \n\t"                   \
+                     "mov r1, %[target_addr]    \n\t"                   \
+                     "mov r2, %[cpsr]           \n\t"                   \
+                     "push {r2}                 \n\t" /* Fake xPSR */   \
+                     "push {r1}                 \n\t" /* PC target addr */ \
+                     "push {r0}                 \n\t" /* Fake LR */     \
+                     "push {r0}                 \n\t" /* Fake R12 */    \
+                     "push {r0}                 \n\t" /* Fake R3 */     \
+                     "push {r0}                 \n\t" /* Fake R2 */     \
+                     "push {r0}                 \n\t" /* Fake R1 */     \
+                     "push {r0}                 \n\t" /* Fake R0 */     \
+                     "mov lr, %[exc_return]     \n\t"                   \
+                     "bx lr"                                            \
+                     :                                                  \
+                     : [stack_top] "r" (STACK_TOP),                     \
+                       [target_addr] "r" (target),                      \
+                       [exc_return] "r" (EXC_RETURN),                   \
+                       [cpsr] "r" (DEFAULT_CPSR)                        \
+                     : "r0", "r1", "r2");                               \
+        /* We never get here */                                         \
+        ASSERT_FAULT(0);                                                \
+    } while (0)
+
+/*
+ * DTR + "1EAF" hooks
  */
 
 enum reset_state_t {
@@ -155,7 +229,7 @@ enum reset_state_t {
 
 static reset_state_t reset_state = DTR_UNSET;
 
-static void ifaceSetupHook(unsigned hook, void *requestvp) {
+static void dtrPlusMagicBytesIfaceHook(unsigned hook, void *requestvp) {
     uint8 request = *(uint8*)requestvp;
 
     // Ignore requests we're not interested in.
@@ -182,16 +256,7 @@ static void ifaceSetupHook(unsigned hook, void *requestvp) {
     }
 }
 
-#define RESET_DELAY 100000
-static void wait_reset(void) {
-  delay_us(RESET_DELAY);
-  nvic_sys_reset();
-}
-
-#define STACK_TOP 0x20000800
-#define EXC_RETURN 0xFFFFFFF9
-#define DEFAULT_CPSR 0x61000000
-static void rxHook(unsigned hook, void *ignored) {
+static void dtrPlusMagicBytesRXHook(unsigned hook, void *ignored) {
     /* FIXME this is mad buggy; we need a new reset sequence. E.g. NAK
      * after each RX means you can't reset if any bytes are waiting. */
     if (reset_state == DTR_NEGEDGE) {
@@ -214,31 +279,23 @@ static void rxHook(unsigned hook, void *ignored) {
 
             // Got the magic sequence? Reset, presumably into the bootloader.
             if (cmpMatch) {
-                // Return address is wait_reset, but we must set the thumb bit.
-                unsigned int target = (unsigned int)wait_reset | 0x1;
-                asm volatile("mov r0, %[stack_top]      \n\t" // Reset stack
-                             "mov sp, r0                \n\t"
-                             "mov r0, #1                \n\t"
-                             "mov r1, %[target_addr]    \n\t"
-                             "mov r2, %[cpsr]           \n\t"
-                             "push {r2}                 \n\t" // Fake xPSR
-                             "push {r1}                 \n\t" // PC target addr
-                             "push {r0}                 \n\t" // Fake LR
-                             "push {r0}                 \n\t" // Fake R12
-                             "push {r0}                 \n\t" // Fake R3
-                             "push {r0}                 \n\t" // Fake R2
-                             "push {r0}                 \n\t" // Fake R1
-                             "push {r0}                 \n\t" // Fake R0
-                             "mov lr, %[exc_return]     \n\t"
-                             "bx lr"
-                             :
-                             : [stack_top] "r" (STACK_TOP),
-                               [target_addr] "r" (target),
-                               [exc_return] "r" (EXC_RETURN),
-                               [cpsr] "r" (DEFAULT_CPSR)
-                             : "r0", "r1", "r2");
-                /* should never get here */
+                RESET_INTO_BOOTLOADER();
             }
         }
+    }
+}
+
+/*
+ * 1200 baud + close hooks
+ */
+
+
+#define MAGIC_RESET_BAUD 1200
+static void magicBaudIfaceHook(unsigned hook, void *requestvp) {
+    // Reset sequence is to set the baud rate to 1200 and then close
+    // the port.
+    if ((usb_cdcacm_get_baud() == MAGIC_RESET_BAUD) &&
+        usb_cdcacm_get_dtr() == 0) {
+        RESET_INTO_BOOTLOADER();
     }
 }
