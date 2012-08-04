@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import contextlib
 import serial
 import os
 import platform
@@ -91,32 +92,14 @@ if maple_path is None:
 print('Using %s as Maple serial port' % maple_path)
 
 try:
-    ser = serial.Serial(maple_path, baudrate=115200, xonxoff=1)
-
-    try:
-        # try to toggle DTR/RTS (old scheme)
-        ser.setRTS(0)
-        time.sleep(0.01)
-        ser.setDTR(0)
-        time.sleep(0.01)
-        ser.setDTR(1)
-        time.sleep(0.01)
-        ser.setDTR(0)
-
-        # try magic number
-        ser.setRTS(1)
-        time.sleep(0.01)
-        ser.setDTR(1)
-        time.sleep(0.01)
-        ser.setDTR(0)
-        time.sleep(0.01)
-        ser.write("1EAF".encode("ascii"))
-
-        # Windows quirk: delay a bit before proceeding
-        if plat_sys == 'Windows': time.sleep(0.5)
-    finally:
-        # ok we're done here
-        ser.close()
+    # The reset sequence is to set the baud rate to 1200 and close the
+    # board.
+    with contextlib.closing(serial.Serial(maple_path,
+                                          baudrate=1200,
+                                          xonxoff=1)) as s:
+        time.sleep(0.5)
+    # Sleep for a bit to let the board enumerate as DFU
+    time.sleep(1)
 
 except Exception as e:
     print('Failed to open serial port %s for reset' % maple_path)
