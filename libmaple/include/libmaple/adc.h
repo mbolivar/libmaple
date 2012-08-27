@@ -260,13 +260,14 @@ extern void adc_foreach(void (*fn)(const adc_dev*));
  *
  * @param dev Device to enable.
  * @see adc_read()
+ * @see adc_config_gpio()
  */
 extern void adc_enable_single_swstart(const adc_dev* dev);
 
 void adc_init(const adc_dev *dev);
 
 /**
- * @brief Enable an adc peripheral
+ * @brief Enable an ADC peripheral
  * @param dev ADC device to enable
  */
 static inline void adc_enable(const adc_dev *dev) {
