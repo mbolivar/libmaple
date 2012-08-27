@@ -34,14 +34,18 @@
 
 #include <libmaple/adc.h>
 #include <libmaple/gpio.h>
+#include <libmaple/nvic.h>
+#include "adc_private.h"
 
 /*
  * Devices
  */
 
 #if _ADC_HAVE_ADC1
+static struct adc_private_data adc1_data;
 static adc_dev adc1 = {
     .regs   = ADC1_BASE,
+    .priv   = &adc1_data,
     .clk_id = RCC_ADC1,
 };
 /** ADC1 device. */
@@ -49,8 +53,10 @@ const adc_dev *ADC1 = &adc1;
 #endif
 
 #if _ADC_HAVE_ADC2
+static struct adc_private_data adc2_data;
 static adc_dev adc2 = {
     .regs   = ADC2_BASE,
+    .priv   = &adc2_data,
     .clk_id = RCC_ADC2,
 };
 /** ADC2 device. */
@@ -58,8 +64,10 @@ const adc_dev *ADC2 = &adc2;
 #endif
 
 #if _ADC_HAVE_ADC3
+static struct adc_private_data adc3_data;
 static adc_dev adc3 = {
     .regs   = ADC3_BASE,
+    .priv   = &adc3_data;
     .clk_id = RCC_ADC3,
 };
 /** ADC3 device. */
@@ -121,3 +129,49 @@ void adc_enable_single_swstart(const adc_dev *dev) {
     adc_enable(dev);
     adc_calibrate(dev);
 }
+
+/*
+ * Private API
+ */
+
+void _adc_enable_dev_irq(const adc_dev *dev) {
+    switch (dev->clk_id) {
+    case RCC_ADC1:              /* Fall through */
+    case RCC_ADC2:
+        nvic_irq_enable(NVIC_ADC_1_2);
+        break;
+    case RCC_ADC3:
+        nvic_irq_enable(NVIC_ADC3);
+        break;
+    default:
+        /* Can't happen */
+        ASSERT(0);
+    }
+}
+
+/*
+ * IRQ handlers for adc_attach_interrupt()
+ */
+
+#if STM32_F1_LINE == STM32_F1_LINE_PERFORMANCE
+
+void __irq_adc_1_2(void) {
+    adc_irq(ADC1);
+    adc_irq(ADC2);
+}
+
+#   if _ADC_HAVE_ADC3
+void __irq_adc3(void) {
+    adc_irq(ADC3);
+}
+#   endif
+
+#elif STM32_F1_LINE == STM32_F1_LINE_VALUE
+
+void __irq_adc1(void) {
+    adc_irq(ADC1);
+}
+
+#else
+#warning "Unsupported F1 line; adc_attach_interrupt() won't work"
+#endif

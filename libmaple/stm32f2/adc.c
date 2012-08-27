@@ -31,27 +31,35 @@
 
 #include <libmaple/adc.h>
 #include <libmaple/gpio.h>
+#include <libmaple/nvic.h>
+#include "adc_private.h"
 
 /*
  * Devices
  */
 
+static struct adc_private_data adc1_data;
 static adc_dev adc1 = {
     .regs   = ADC1_BASE,
+    .priv   = &adc1_data,
     .clk_id = RCC_ADC1,
 };
 /** ADC1 device. */
 const adc_dev *ADC1 = &adc1;
 
+static struct adc_private_data adc2_data;
 static adc_dev adc2 = {
     .regs   = ADC2_BASE,
+    .priv   = &adc2_data,
     .clk_id = RCC_ADC2,
 };
 /** ADC2 device. */
 const adc_dev *ADC2 = &adc2;
 
+static struct adc_private_data adc3_data;
 static adc_dev adc3 = {
     .regs   = ADC3_BASE,
+    .priv   = &adc3_data,
     .clk_id = RCC_ADC3,
 };
 /** ADC3 device. */
@@ -81,4 +89,22 @@ void adc_config_gpio(const adc_dev *ignored, gpio_dev *gdev, uint8 bit) {
 void adc_enable_single_swstart(const adc_dev *dev) {
     adc_init(dev);
     adc_enable(dev);
+}
+
+/*
+ * Private API
+ */
+
+void _adc_enable_dev_irq(const adc_dev *dev) {
+    nvic_irq_enable(NVIC_ADC);
+}
+
+/*
+ * IRQ handler for adc_attach_interrupt()
+ */
+
+void __irq_adc(void) {
+    adc_irq(ADC1);
+    adc_irq(ADC2);
+    adc_irq(ADC3);
 }

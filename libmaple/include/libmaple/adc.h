@@ -76,13 +76,16 @@ typedef struct adc_reg_map {
 /** ADC device type. */
 typedef struct adc_dev {
     adc_reg_map *regs; /**< Register map */
+    void *const priv;  /**< Private; don't touch */
     rcc_clk_id clk_id; /**< RCC clock information */
 } adc_dev;
 
 /* Pull in the series header (which may need the above struct
  * definitions).
  *
- * IMPORTANT: The series header must define the following:
+ * IMPORTANT NOTES FOR IMPLEMENTORS:
+ *
+ * The series header must define the following:
  *
  * - enum adc_extsel_event (and typedef to adc_extsel_event): One per
  *   external event used to trigger start of conversion of a regular
@@ -101,6 +104,12 @@ typedef struct adc_dev {
  *   prescaler dividers (e.g. STM32F1 and STM32F2 both divide PCLK2 by
  *   2, 4, 6, or 8) must provide the same tokens as enumerators, for
  *   portability.
+ *
+ * Additionally, when adding a new series, you must keep the
+ * definition and documentation for adc_interrupt_id up to date. If it
+ * needs changes, then the implementations of adc_enable_interrupts()
+ * and adc_disable_interrupts() will probably need to be updated as
+ * well.
  */
 #include <series/adc.h>
 
@@ -333,6 +342,68 @@ static inline void adc_set_reg_seqlen(const adc_dev *dev, uint8 length) {
 /* Conversion */
 
 uint16 adc_read(const adc_dev *dev, uint8 channel);
+
+/* Interrupts */
+
+/**
+ * @brief ADC interrupts
+ *
+ * These are useful for enabling/disabling interrupts, as well as
+ * decoding which interrupts were responsible for an ADC IRQ
+ * firing. They are bit flags and thus can safely be ORed together.
+ *
+ * Not all targets support all interrupts given here. In cases where
+ * availability is limited, the flag's documentation states which
+ * targets support the flag. Functions taking adc_interrupt_id
+ * arguments ignore any values that are unavailable on the target.
+ *
+ * @see ADC_ALL_INTERRUPTS
+ * @see adc_attach_interrupt()
+ * @see adc_enable_interrupts()
+ * @see adc_disable_interrupts()
+ */
+typedef enum adc_interrupt_id {
+    /** Regular channel end of conversion interrupt */
+    ADC_CONV_INTERRUPT = ADC_SR_EOC,
+
+    /** Injected channel end of conversion interrupt */
+    ADC_INJ_CONV_INTERRUPT = ADC_SR_JEOC,
+
+    /** Analog watchdog interrupt */
+    ADC_WATCHDOG_INTERRUPT = ADC_SR_AWD,
+
+#ifdef ADC_SR_OVR
+    ADC_OVERRUN_INTERRUPT = ADC_SR_OVR,
+#else
+    /**
+     * @brief Overrun interrupt.
+     *
+     * Availability: STM32F2, STM32F4. */
+    ADC_OVERRUN_INTERRUPT = 0,
+#endif
+} adc_interrupt_id;
+
+/**
+ * @brief Logical or of all adc_interrupt_id values
+ * @see enum adc_interrupt_id */
+#define ADC_ALL_INTERRUPTS (ADC_CONV_INTERRUPT | ADC_INJ_CONV_INTERRUPT | \
+                            ADC_WATCHDOG_INTERRUPT | ADC_OVERRUN_INTERRUPT)
+
+/**
+ * @brief Used as argument to attached ADC interrupt handlers
+ * @see adc_attach_interrupt()
+ */
+typedef struct adc_callback_data {
+    uint32 irq_flags;
+    void *arg;
+} adc_callback_data;
+
+void adc_attach_interrupt(const adc_dev *dev, uint32 interrupt_flags,
+                          void (*handler)(adc_callback_data*), void* arg);
+void adc_detach_interrupt(const adc_dev *dev);
+
+void adc_enable_interrupts(const adc_dev *dev, uint32 interrupt_flags);
+void adc_disable_interrupts(const adc_dev *dev, uint32 interrupt_flags);
 
 #ifdef __cplusplus
 } // extern "C"
