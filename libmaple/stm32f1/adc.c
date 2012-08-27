@@ -39,21 +39,25 @@
  * Devices
  */
 
+#if _ADC_HAVE_ADC1
 static adc_dev adc1 = {
     .regs   = ADC1_BASE,
     .clk_id = RCC_ADC1,
 };
 /** ADC1 device. */
 const adc_dev *ADC1 = &adc1;
+#endif
 
+#if _ADC_HAVE_ADC2
 static adc_dev adc2 = {
     .regs   = ADC2_BASE,
     .clk_id = RCC_ADC2,
 };
 /** ADC2 device. */
 const adc_dev *ADC2 = &adc2;
+#endif
 
-#if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
+#if _ADC_HAVE_ADC3
 static adc_dev adc3 = {
     .regs   = ADC3_BASE,
     .clk_id = RCC_ADC3,
@@ -95,9 +99,13 @@ void adc_set_prescaler(adc_prescaler pre) {
 }
 
 void adc_foreach(void (*fn)(const adc_dev*)) {
+#if _ADC_HAVE_ADC1
     fn(ADC1);
+#endif
+#if _ADC_HAVE_ADC2
     fn(ADC2);
-#if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
+#endif
+#if _ADC_HAVE_ADC3
     fn(ADC3);
 #endif
 }

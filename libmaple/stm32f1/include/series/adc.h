@@ -43,9 +43,20 @@
  * Devices
  */
 
+/* Should this be ported to other series and moved into <libmaple/stm32.h>? */
+#define _ADC_HAVE_ADC1 1
+#define _ADC_HAVE_ADC2 (STM32_F1_LINE == STM32_F1_LINE_PERFORMANCE)
+#define _ADC_HAVE_ADC3 ((STM32_F1_LINE == STM32_F1_LINE_PERFORMANCE) && \
+                         (defined(STM32_HIGH_DENSITY) || \
+                          defined(STM32_XL_DENSITY)))
+
+#if _ADC_HAVE_ADC1
 extern const struct adc_dev *ADC1;
+#endif
+#if _ADC_HAVE_ADC2
 extern const struct adc_dev *ADC2;
-#if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
+#endif
+#if _ADC_HAVE_ADC3
 extern const struct adc_dev *ADC3;
 #endif
 
