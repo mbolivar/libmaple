@@ -241,17 +241,7 @@ typedef struct adc_dev {
  * Routines
  */
 
-void adc_init(const adc_dev *dev);
-void adc_set_extsel(const adc_dev *dev, adc_extsel_event event);
-void adc_set_sample_rate(const adc_dev *dev, adc_smp_rate smp_rate);
-uint16 adc_read(const adc_dev *dev, uint8 channel);
-
-/**
- * @brief Set the ADC prescaler.
- *
- * This determines the ADC clock for all devices.
- */
-extern void adc_set_prescaler(adc_prescaler pre);
+/* Misc. */
 
 /**
  * @brief Call a function on all ADC devices.
@@ -259,17 +249,7 @@ extern void adc_set_prescaler(adc_prescaler pre);
  */
 extern void adc_foreach(void (*fn)(const adc_dev*));
 
-struct gpio_dev;
-/**
- * @brief Configure a GPIO pin for ADC conversion.
- * @param dev ADC device to use for conversion (currently ignored on
- *            all targets).
- * @param gdev GPIO device to configure.
- * @param bit Bit on gdev to configure for ADC conversion.
- */
-extern void adc_config_gpio(const struct adc_dev *dev,
-                            struct gpio_dev *gdev,
-                            uint8 bit);
+/* Initialize, enable/disable */
 
 /**
  * @brief Enable an ADC and configure it for single conversion mode.
@@ -283,21 +263,7 @@ extern void adc_config_gpio(const struct adc_dev *dev,
  */
 extern void adc_enable_single_swstart(const adc_dev* dev);
 
-/**
- * @brief Set the regular channel sequence length.
- *
- * Defines the total number of conversions in the regular channel
- * conversion sequence.
- *
- * @param dev ADC device.
- * @param length Regular channel sequence length, from 1 to 16.
- */
-static inline void adc_set_reg_seqlen(const adc_dev *dev, uint8 length) {
-    uint32 tmp = dev->regs->SQR1;
-    tmp &= ~ADC_SQR1_L;
-    tmp |= (length - 1) << 20;
-    dev->regs->SQR1 = tmp;
-}
+void adc_init(const adc_dev *dev);
 
 /**
  * @brief Enable an adc peripheral
@@ -321,6 +287,51 @@ static inline void adc_disable(const adc_dev *dev) {
 static inline void adc_disable_all(void) {
     adc_foreach(adc_disable);
 }
+
+/* Configuration */
+
+void adc_set_extsel(const adc_dev *dev, adc_extsel_event event);
+void adc_set_sample_rate(const adc_dev *dev, adc_smp_rate smp_rate);
+
+/**
+ * @brief Set the ADC prescaler.
+ *
+ * This determines the ADC clock for all devices.
+ */
+extern void adc_set_prescaler(adc_prescaler pre);
+
+
+struct gpio_dev;
+/**
+ * @brief Configure a GPIO pin for ADC conversion.
+ * @param dev ADC device to use for conversion (currently ignored on
+ *            all targets).
+ * @param gdev GPIO device to configure.
+ * @param bit Bit on gdev to configure for ADC conversion.
+ */
+extern void adc_config_gpio(const struct adc_dev *dev,
+                            struct gpio_dev *gdev,
+                            uint8 bit);
+
+/**
+ * @brief Set the regular channel sequence length.
+ *
+ * Defines the total number of conversions in the regular channel
+ * conversion sequence.
+ *
+ * @param dev ADC device.
+ * @param length Regular channel sequence length, from 1 to 16.
+ */
+static inline void adc_set_reg_seqlen(const adc_dev *dev, uint8 length) {
+    uint32 tmp = dev->regs->SQR1;
+    tmp &= ~ADC_SQR1_L;
+    tmp |= (length - 1) << 20;
+    dev->regs->SQR1 = tmp;
+}
+
+/* Conversion */
+
+uint16 adc_read(const adc_dev *dev, uint8 channel);
 
 #ifdef __cplusplus
 } // extern "C"
