@@ -131,9 +131,9 @@ __default_handler:
 	.weak	__irq_dma1_channel7
 	.globl	__irq_dma1_channel7
 	.set	__irq_dma1_channel7, __default_handler
-	.weak	__irq_adc
-	.globl	__irq_adc
-	.set	__irq_adc, __default_handler
+	.weak	__irq_adc_1_2
+	.globl	__irq_adc_1_2
+	.set	__irq_adc_1_2, __default_handler
 	.weak	__irq_usb_hp_can_tx
 	.globl	__irq_usb_hp_can_tx
 	.set	__irq_usb_hp_can_tx, __default_handler

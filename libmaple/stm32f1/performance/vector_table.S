@@ -68,7 +68,7 @@ __stm32_vector_table:
 	.long	__irq_dma1_channel5
 	.long	__irq_dma1_channel6
 	.long	__irq_dma1_channel7
-	.long	__irq_adc
+	.long	__irq_adc_1_2
 	.long	__irq_usb_hp_can_tx
 	.long	__irq_usb_lp_can_rx0
 	.long	__irq_can_rx1
