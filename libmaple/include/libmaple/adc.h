@@ -261,17 +261,18 @@ extern void adc_foreach(void (*fn)(const adc_dev*));
 /* Initialize, enable/disable */
 
 /**
- * @brief Enable an ADC and configure it for single conversion mode.
+ * @brief Enable an ADC and configure it for regular channel conversion.
  *
  * This function performs any initialization necessary to allow the
- * ADC device to perform a single synchronous regular software
- * triggered conversion, using adc_read().
+ * ADC device to do software-triggered conversion of regular (i.e.,
+ * not injected) ADC channels. For example, the device will be ready
+ * for use with adc_read() after you call this function on it.
  *
  * @param dev Device to enable.
  * @see adc_read()
  * @see adc_config_gpio()
  */
-extern void adc_enable_single_swstart(const adc_dev* dev);
+extern void adc_enable_reg_swstart(const adc_dev* dev);
 
 void adc_init(const adc_dev *dev);
 

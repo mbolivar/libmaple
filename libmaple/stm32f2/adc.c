@@ -86,7 +86,7 @@ void adc_config_gpio(const adc_dev *ignored, gpio_dev *gdev, uint8 bit) {
     gpio_set_modef(gdev, bit, GPIO_MODE_ANALOG, GPIO_MODEF_PUPD_NONE);
 }
 
-void adc_enable_single_swstart(const adc_dev *dev) {
+void adc_enable_reg_swstart(const adc_dev *dev) {
     adc_init(dev);
     adc_enable(dev);
 }

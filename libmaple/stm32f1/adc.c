@@ -122,7 +122,7 @@ void adc_config_gpio(const adc_dev *ignored, gpio_dev *gdev, uint8 bit) {
     gpio_set_mode(gdev, bit, GPIO_INPUT_ANALOG);
 }
 
-void adc_enable_single_swstart(const adc_dev *dev) {
+void adc_enable_reg_swstart(const adc_dev *dev) {
     adc_init(dev);
     adc_set_extsel(dev, ADC_SWSTART);
     adc_set_exttrig(dev, 1);
