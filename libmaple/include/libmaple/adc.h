@@ -311,7 +311,6 @@ void adc_set_sample_rate(const adc_dev *dev, adc_smp_rate smp_rate);
  */
 extern void adc_set_prescaler(adc_prescaler pre);
 
-
 struct gpio_dev;
 /**
  * @brief Configure a GPIO pin for ADC conversion.
