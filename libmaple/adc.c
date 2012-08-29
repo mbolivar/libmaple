@@ -90,6 +90,92 @@ void adc_set_sample_rate(const adc_dev *dev, adc_smp_rate smp_rate) {
 }
 
 /**
+ * @brief Enable scan mode for an ADC.
+ *
+ * In scan mode, the ADC converts all channels in a regular or
+ * injected sequence. After each conversion is done, the ADC
+ * automatically starts converting the next channel in the sequence.
+ *
+ * Scan mode is disabled by default.
+ *
+ * @see adc_disable_scan()
+ */
+void adc_enable_scan(const adc_dev *dev) {
+    bb_peri_set_bit(&dev->regs->CR1, ADC_CR1_SCAN_BIT, 1);
+}
+
+/**
+ * @brief Disable scan mode for an ADC.
+ *
+ * This is the default setting.
+ *
+ * @see adc_enable_scan()
+ */
+void adc_disable_scan(const adc_dev *dev) {
+    bb_peri_set_bit(&dev->regs->CR1, ADC_CR1_SCAN_BIT, 0);
+}
+
+/**
+ * @brief Enable continuous mode for an ADC.
+ *
+ * In this mode, the ADC will automatically perform conversions
+ * continuously until taken out of this mode or disabled.
+ *
+ * Continuous mode is disabled by default.
+ *
+ * @see adc_disable_continuous()
+ */
+void adc_enable_continuous(const adc_dev *dev) {
+    bb_peri_set_bit(&dev->regs->CR2, ADC_CR2_CONT_BIT, 1);
+}
+
+/**
+ * @brief Disable continuous mode for an ADC.
+ *
+ * This is the default setting.
+ *
+ * @see adc_enable_continuous()
+ */
+void adc_disable_continuous(const adc_dev *dev) {
+    bb_peri_set_bit(&dev->regs->CR2, ADC_CR2_CONT_BIT, 0);
+}
+
+#define BITS_PER_SQ 5
+#define SQs_PER_SQR 6
+/**
+ * @brief Set the regular channel conversion sequence.
+ * @param dev ADC device
+ * @param channels Array of ADC channels to set as the regular
+ *                 conversion sequence.
+ * @param len Length of channels, from 1 to 16.
+ * @see adc_start_reg_seq()
+ */
+void adc_set_reg_seq(const adc_dev *dev, const uint8 *channels, uint8 len) {
+    const uint8 *end;
+    __io uint32 *sqr = &dev->regs->SQR3; /* Next SQR to write to */
+    uint32 val = 0;                      /* SQR we're building */
+    unsigned sq = 0;                     /* SQ in sqr to set next */
+    ASSERT(0 < len && len <= 16);
+
+    dev->regs->CR1 |= ADC_CR1_SCAN;
+
+    end = channels + len;
+    do {
+        val |= *channels << (BITS_PER_SQ * sq++);
+        if (sq == SQs_PER_SQR) {
+            /* Finished building sqr in val. Set it and move on. This
+             * relies on the ADC_SQRx being contiguous. */
+            *sqr-- = val;
+            val = 0;
+            sq = 0;
+        }
+    } while (++channels < end);
+    /* Write the last SQR, in case SQs_PER_SQR doesn't divide len. */
+    *sqr = val;
+    adc_set_reg_seqlen(dev, len);
+}
+
+/**
  * @brief Perform a single synchronous software triggered conversion on a
  *        channel.
  * @param dev ADC device to use for reading.

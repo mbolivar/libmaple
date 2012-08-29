@@ -339,9 +339,58 @@ static inline void adc_set_reg_seqlen(const adc_dev *dev, uint8 length) {
     dev->regs->SQR1 = tmp;
 }
 
+void adc_enable_scan(const adc_dev *dev);
+void adc_disable_scan(const adc_dev *dev);
+
+void adc_enable_continuous(const adc_dev *dev);
+void adc_disable_continuous(const adc_dev *dev);
+
+void adc_set_reg_seq(const adc_dev *dev, const uint8 *channels, uint8 len);
+
 /* Conversion */
 
 uint16 adc_read(const adc_dev *dev, uint8 channel);
+
+/**
+ * @brief Start the next conversion in the regular sequence.
+ *
+ * This function is nonblocking. It starts converting the regular
+ * sequence of ADC channels. After calling it, you can either poll the
+ * device (using adc_is_conv_complete()) or use interrupts (using
+ * adc_attach_interrupt()) to determine when conversion is finished.
+ *
+ * You must set the channel(s) to convert before calling this
+ * function. Do that with adc_set_reg_seq().
+ *
+ * Implementation note: this function uses the SWSTART bit to start
+ * the conversion. Some targets require extra configuration for
+ * SWSTART to have an effect. You can portably perform this
+ * configuration with adc_enable_reg_swstart().
+ *
+ * @param dev ADC device whose regular conversion sequence to start.
+ * @see adc_enable_reg_swstart()
+ * @see adc_set_reg_seq()
+ * @see adc_is_conv_complete()
+ * @see adc_attach_interrupt()
+ */
+static __always_inline void adc_start_conv(const adc_dev *dev) {
+    dev->regs->CR2 |= ADC_CR2_SWSTART;
+}
+
+/**
+ * @brief Check if a regular conversion has completed.
+ *
+ * This function is useful e.g. when watching ADC conversions started
+ * with adc_start_conv(). When a channel's conversion finishes, this
+ * function will return true.
+ *
+ * @param dev Device to check.
+ * @return True if conversion has completed, false otherwise.
+ * @see adc_start_conv()
+ */
+static __always_inline int adc_is_conv_complete(const adc_dev *dev) {
+    return dev->regs->SR & ADC_SR_EOC;
+}
 
 /* Interrupts */
 
