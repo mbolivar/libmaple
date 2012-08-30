@@ -22,8 +22,8 @@ void adcInterruptHandler(adc_callback_data *cb_data) {
     ASSERT(cb_data->irq_flags & ADC_CONV_INTERRUPT);
 
     // Store the converted result.
-    gotResult = true;
     result = adc_get_data(dev);
+    gotResult = true;
 
     // Start the next conversion.
     adc_start_conv(dev);
