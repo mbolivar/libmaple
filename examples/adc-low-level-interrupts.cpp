@@ -39,11 +39,11 @@ void setup(void) {
     // Make sure adcPin can do ADC conversion.
     ASSERT(dev);
 
-    // Set the pin mode, and configure dev for interrupt-based
-    // conversion.
+    // Set the pin mode.
     pinMode(adcPin, INPUT_ANALOG);
-    // We're only converting one channel.
-    adc_set_reg_seq(dev, &channel, 1);
+    // Set the channel conversion sequence. We're only converting one
+    // channel.
+    adc_set_conv_seq(dev, &channel, 1);
     // Set up our interrupt handler. Our handler doesn't need any
     // extra information, so we set the `arg' parameter to NULL.
     adc_attach_interrupt(dev, ADC_CONV_INTERRUPT, adcInterruptHandler, NULL);
