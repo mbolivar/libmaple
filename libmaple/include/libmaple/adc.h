@@ -392,6 +392,27 @@ static __always_inline int adc_is_conv_complete(const adc_dev *dev) {
     return dev->regs->SR & ADC_SR_EOC;
 }
 
+/**
+ * @brief Get converted data from an ADC's regular sequence.
+ *
+ * Call this function to get the results of the most recent
+ * conversion.
+ *
+ * You must ensure that the data are available before calling this
+ * function. Do that either by waiting until adc_is_conv_complete()
+ * returns true, or (from an interrupt handler) checking that your
+ * handler was called due to ADC_CONV_INTERRUPT via its
+ * adc_callback_data argument.
+ *
+ * @see adc_is_conv_complete()
+ * @see enum adc_interrupt_id
+ * @see adc_attach_interrupt()
+ * @see struct adc_callback_data
+ */
+static __always_inline uint32 adc_get_data(const adc_dev *dev) {
+    return dev->regs->DR;
+}
+
 /* Interrupts */
 
 /**
