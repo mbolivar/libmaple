@@ -208,7 +208,7 @@ uint16 adc_read(const adc_dev *dev, uint8 channel) {
  *
  * When `handler' is called, its argument will point to a struct
  * adc_callback_data. Its .irq_flags field is a logical or of
- * adc_interrupt_id values encoding the reason(s) for the call. It's
+ * adc_interrupt_id values encoding the reason(s) for the call. Its
  * .arg field will be the `arg' argument to this function.
  *
  * The bits set in the adc_callback_data's .irq_flags which are passed
