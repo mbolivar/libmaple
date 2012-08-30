@@ -161,8 +161,6 @@ void adc_set_conv_seq(const adc_dev *dev, const uint8 *channels, uint8 len) {
     unsigned sq = 0;                     /* SQ in sqr to set next */
     ASSERT(0 < len && len <= 16);
 
-    dev->regs->CR1 |= ADC_CR1_SCAN;
-
     end = channels + len;
     do {
         val |= *channels << (BITS_PER_SQ * sq++);
