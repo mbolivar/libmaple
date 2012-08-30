@@ -345,7 +345,7 @@ void adc_disable_scan(const adc_dev *dev);
 void adc_enable_continuous(const adc_dev *dev);
 void adc_disable_continuous(const adc_dev *dev);
 
-void adc_set_reg_seq(const adc_dev *dev, const uint8 *channels, uint8 len);
+void adc_set_conv_seq(const adc_dev *dev, const uint8 *channels, uint8 len);
 
 /* Conversion */
 
@@ -360,7 +360,7 @@ uint16 adc_read(const adc_dev *dev, uint8 channel);
  * adc_attach_interrupt()) to determine when conversion is finished.
  *
  * You must set the channel(s) to convert before calling this
- * function. Do that with adc_set_reg_seq().
+ * function. Do that with adc_set_conv_seq().
  *
  * Implementation note: this function uses the SWSTART bit to start
  * the conversion. Some targets require extra configuration for
@@ -369,7 +369,7 @@ uint16 adc_read(const adc_dev *dev, uint8 channel);
  *
  * @param dev ADC device whose regular conversion sequence to start.
  * @see adc_enable_reg_swstart()
- * @see adc_set_reg_seq()
+ * @see adc_set_conv_seq()
  * @see adc_is_conv_complete()
  * @see adc_attach_interrupt()
  */

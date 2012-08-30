@@ -143,14 +143,17 @@ void adc_disable_continuous(const adc_dev *dev) {
 #define BITS_PER_SQ 5
 #define SQs_PER_SQR 6
 /**
- * @brief Set the regular channel conversion sequence.
+ * @brief Set the sequence of channels to convert.
+ *
+ * This sets the (regular) sequence of up to 16 channels to convert.
+ *
  * @param dev ADC device
- * @param channels Array of ADC channels to set as the regular
- *                 conversion sequence.
- * @param len Length of channels, from 1 to 16.
- * @see adc_start_reg_seq()
+ * @param channels ADC channels to convert; these can repeat and may
+ *                 be in any order.
+ * @param len Length of `channels', from 1 to 16.
+ * @see adc_start_conv()
  */
-void adc_set_reg_seq(const adc_dev *dev, const uint8 *channels, uint8 len) {
+void adc_set_conv_seq(const adc_dev *dev, const uint8 *channels, uint8 len) {
     const uint8 *end;
     __io uint32 *sqr = &dev->regs->SQR3; /* Next SQR to write to */
     uint32 val = 0;                      /* SQR we're building */
