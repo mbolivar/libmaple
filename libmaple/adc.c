@@ -207,19 +207,20 @@ uint16 adc_read(const adc_dev *dev, uint8 channel) {
  * overwrite any previously attached handler.
  *
  * When `handler' is called, its argument will point to a struct
- * adc_callback_data. Its .irq_flags field is a logical or of
- * adc_interrupt_id values encoding the reason(s) for the call. Its
- * .arg field will be the `arg' argument to this function.
+ * adc_callback_data. The .irq_flags field in this struct will be a
+ * logical OR of adc_interrupt_id values encoding the reason(s) for
+ * the call. Its .arg field will be the `arg' argument to this
+ * function.
  *
- * The bits set in the adc_callback_data's .irq_flags which are passed
- * to `handler' will always be a subset of those set in the
- * `interrupt_flags' argument to this function; i.e., ADC interrupts
- * not given here in the `flags' argument will never cause `handler'
- * to be called. This has the effect that any enabled ADC interrupts
- * not specified in `interrupt_flags' will be ignored.
+ * The interrupt bits set in the adc_callback_data's .irq_flags will
+ * always be a subset of those set in the `interrupt_flags' argument
+ * to this function. That is, interrupts not given here in the
+ * `interrupt_flags' argument will never cause `handler' to be
+ * called. This has the effect that any enabled ADC interrupts not
+ * specified in `interrupt_flags' will be ignored.
  *
  * This function additionally enables the ADC interrupts specified by
- * `flags'.
+ * `interrupt_flags'.
  *
  * @param dev ADC device whose interrupts to attach to.
  * @param interrupt_flags Logical or of adc_interrupt_id values
