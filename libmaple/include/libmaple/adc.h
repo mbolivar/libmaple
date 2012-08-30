@@ -125,11 +125,11 @@ typedef struct adc_dev {
 #define ADC_SR_JSTRT_BIT                3
 #define ADC_SR_STRT_BIT                 4
 
-#define ADC_SR_AWD                      BIT(ADC_SR_AWD_BIT)
-#define ADC_SR_EOC                      BIT(ADC_SR_EOC_BIT)
-#define ADC_SR_JEOC                     BIT(ADC_SR_JEOC_BIT)
-#define ADC_SR_JSTRT                    BIT(ADC_SR_JSTRT_BIT)
-#define ADC_SR_STRT                     BIT(ADC_SR_STRT_BIT)
+#define ADC_SR_AWD                      (1U << ADC_SR_AWD_BIT)
+#define ADC_SR_EOC                      (1U << ADC_SR_EOC_BIT)
+#define ADC_SR_JEOC                     (1U << ADC_SR_JEOC_BIT)
+#define ADC_SR_JSTRT                    (1U << ADC_SR_JSTRT_BIT)
+#define ADC_SR_STRT                     (1U << ADC_SR_STRT_BIT)
 
 /* Control register 1 */
 
@@ -145,17 +145,17 @@ typedef struct adc_dev {
 #define ADC_CR1_AWDEN_BIT               23
 
 #define ADC_CR1_AWDCH                   (0x1F)
-#define ADC_CR1_EOCIE                   BIT(ADC_CR1_EOCIE_BIT)
-#define ADC_CR1_AWDIE                   BIT(ADC_CR1_AWDIE_BIT)
-#define ADC_CR1_JEOCIE                  BIT(ADC_CR1_JEOCIE_BIT)
-#define ADC_CR1_SCAN                    BIT(ADC_CR1_SCAN_BIT)
-#define ADC_CR1_AWDSGL                  BIT(ADC_CR1_AWDSGL_BIT)
-#define ADC_CR1_JAUTO                   BIT(ADC_CR1_JAUTO_BIT)
-#define ADC_CR1_DISCEN                  BIT(ADC_CR1_DISCEN_BIT)
-#define ADC_CR1_JDISCEN                 BIT(ADC_CR1_JDISCEN_BIT)
+#define ADC_CR1_EOCIE                   (1U << ADC_CR1_EOCIE_BIT)
+#define ADC_CR1_AWDIE                   (1U << ADC_CR1_AWDIE_BIT)
+#define ADC_CR1_JEOCIE                  (1U << ADC_CR1_JEOCIE_BIT)
+#define ADC_CR1_SCAN                    (1U << ADC_CR1_SCAN_BIT)
+#define ADC_CR1_AWDSGL                  (1U << ADC_CR1_AWDSGL_BIT)
+#define ADC_CR1_JAUTO                   (1U << ADC_CR1_JAUTO_BIT)
+#define ADC_CR1_DISCEN                  (1U << ADC_CR1_DISCEN_BIT)
+#define ADC_CR1_JDISCEN                 (1U << ADC_CR1_JDISCEN_BIT)
 #define ADC_CR1_DISCNUM                 (0xE000)
-#define ADC_CR1_JAWDEN                  BIT(ADC_CR1_JAWDEN_BIT)
-#define ADC_CR1_AWDEN                   BIT(ADC_CR1_AWDEN_BIT)
+#define ADC_CR1_JAWDEN                  (1U << ADC_CR1_JAWDEN_BIT)
+#define ADC_CR1_AWDEN                   (1U << ADC_CR1_AWDEN_BIT)
 
 /* Control register 2 */
 
